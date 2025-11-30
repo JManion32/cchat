@@ -9,8 +9,8 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
-#include "server.h"      // your server logic (dispatching)
-#include "client_handler.h"  // per-client thread function
+#include "server.hpp"      // your server logic (dispatching)
+#include "client_handler.hpp"  // per-client thread function
 
 // The port your server will listen on:
 static const int SERVER_PORT = 5000;

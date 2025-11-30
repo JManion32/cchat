@@ -1,10 +1,10 @@
 #include "../include/client.hpp"
-#include "../include/protocol_qt.hpp"
 #include <QMessageBox>
 
+Client::~Client() = default;  // <-- ADD THIS
+
 Client::Client(const QString &ip, quint16 port, QWidget *parent)
-    : QMainWindow(parent),
-      socket(new QTcpSocket(this))
+    : QMainWindow(parent), socket(new QTcpSocket(this))
 {
     socket->connectToHost(ip, port);
 

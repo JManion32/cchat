@@ -5,11 +5,9 @@
 #include <QTcpSocket>
 
 class Client : public QMainWindow {
-    Q_OBJECT
-
 public:
     Client(const QString &ip, quint16 port, QWidget *parent = nullptr);
-    ~Client() override = default;
+    ~Client();  // <-- ADD THIS
 
 private:
     QTcpSocket *socket;

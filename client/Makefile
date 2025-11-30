@@ -9,8 +9,8 @@ LDFLAGS = -L$(QT)/lib -lQt6Core -lQt6Gui -lQt6Widgets -lQt6Network
 
 OBJ = src/main.o src/client.o src/protocol_qt.o ../common/protocol.o
 
-../bin/client: $(OBJ)
-	$(CXX) $(OBJ) -o ../bin/client $(LDFLAGS)
+../bin/linux/client: $(OBJ)
+	$(CXX) $(OBJ) -o ../bin/linux/client $(LDFLAGS)
 
 src/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -19,4 +19,4 @@ src/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f src/*.o ../common/*.o ../bin/client
+	rm -f src/*.o ../common/*.o ../bin/linux/client

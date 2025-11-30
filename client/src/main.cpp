@@ -2,7 +2,7 @@
 // Initialize the GUI
 
 #include <QApplication>
-#include "client.h"   // your client logic class
+#include "client.hpp"
 
 int main(int argc, char *argv[]) {
     QApplication app(argc, argv);
