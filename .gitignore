@@ -1,9 +1,6 @@
 # Compiled object files
 *.o
 
-# Executables
-bin/*
-
 # Qt's moc files
 moc_*.cpp
 
