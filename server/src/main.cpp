@@ -1,86 +1,126 @@
+// The APIs are pretty similar, we just need to conditionally use them depending on the OS
+
 #include <iostream>
-#include <cstdlib>
-#include <cstring>
-#include <unistd.h>
-#include <arpa/inet.h>
-#include <pthread.h>
+#include <string>
+
+#ifdef _WIN32
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #pragma comment(lib, "ws2_32.lib")
+    typedef SOCKET SocketType;
+
+#else
+    #include <arpa/inet.h>
+    #include <pthread.h>
+    #include <unistd.h>
+    typedef int SocketType;
+
+#endif
 
 static const int SERVER_PORT = 5000;
 
-// Thread wrapper to match pthread signature
+// ===========================================
+// Thread logic
+// ===========================================
+#ifdef _WIN32
+DWORD WINAPI client_thread(LPVOID arg) {
+    SocketType client_fd = *(SocketType*)arg;
+    delete (SocketType*)arg;
+
+    closesocket(client_fd);
+    return 0;
+}
+#else
 void* client_thread(void* arg) {
-    int client_fd = *(int*)arg;
-    delete (int*)arg;  // allocated in main, free it here
+    SocketType client_fd = *(SocketType*)arg;
+    delete (SocketType*)arg;
 
     close(client_fd);
     return nullptr;
 }
+#endif
 
+
+// ===========================================
+// Main Server
+// ===========================================
 int main() {
     std::cout << "[SERVER] Starting server..." << std::endl;
 
-    // 1. Create TCP socket
-    int server_fd = socket(AF_INET, SOCK_STREAM, 0);
+#ifdef _WIN32
+    // Initialize WinSock
+    WSADATA wsa;
+    WSAStartup(MAKEWORD(2, 2), &wsa);
+#endif
+
+    // 1. Create socket
+    SocketType server_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (server_fd < 0) {
-        perror("[SERVER] socket() failed");
-        exit(EXIT_FAILURE);
+        perror("socket failed");
+        return -1;
     }
 
-    // Allow immediate reuse of address after restart
+    // Allow reuse
     int opt = 1;
+#ifdef _WIN32
+    setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (char*)&opt, sizeof(opt));
+#else
     setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+#endif
 
-    // 2. Bind socket to port
+    // 2. Bind
     sockaddr_in server_addr{};
     server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY;  // listen on all interfaces
+    server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(SERVER_PORT);
 
-    if (bind(server_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
-        perror("[SERVER] bind() failed");
-        close(server_fd);
-        exit(EXIT_FAILURE);
+    if (bind(server_fd, (sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
+        perror("bind failed");
+        return -1;
     }
 
     // 3. Listen
     if (listen(server_fd, 10) < 0) {
-        perror("[SERVER] listen() failed");
-        close(server_fd);
-        exit(EXIT_FAILURE);
+        perror("listen failed");
+        return -1;
     }
 
-    std::cout << "[SERVER] Listening on port " << SERVER_PORT << "..." << std::endl;
+    std::cout << "[SERVER] Listening on port " << SERVER_PORT << "...\n";
 
-    // 4. Accept loop (multithreaded)
+    // 4. Accept loop
     while (true) {
         sockaddr_in client_addr{};
+#ifdef _WIN32
+        int client_len = sizeof(client_addr);
+#else
         socklen_t client_len = sizeof(client_addr);
+#endif
 
-        int client_fd = accept(server_fd, (struct sockaddr*)&client_addr, &client_len);
+        SocketType client_fd = accept(server_fd, (sockaddr*)&client_addr, &client_len);
         if (client_fd < 0) {
-            perror("[SERVER] accept() failed");
+            perror("accept failed");
             continue;
         }
 
-        std::cout << "[SERVER] Client connected from "
-                  << inet_ntoa(client_addr.sin_addr)
-                  << ":" << ntohs(client_addr.sin_port)
-                  << std::endl;
+        std::cout << "[SERVER] Client connected\n";
 
-        // Allocate fd for thread safety
-        int* thread_fd = new int(client_fd);
+        // allocate fd for thread
+        SocketType* thread_fd = new SocketType(client_fd);
 
+#ifdef _WIN32
+        // Windows thread
+        HANDLE thread = CreateThread(
+            nullptr, 0, client_thread, thread_fd, 0, nullptr
+        );
+        CloseHandle(thread);
+
+#else
+        // Linux pthread
         pthread_t tid;
-        if (pthread_create(&tid, nullptr, client_thread, thread_fd) != 0) {
-            perror("[SERVER] pthread_create failed");
-            close(client_fd);
-            delete thread_fd;
-            continue;
-        }
-
-        pthread_detach(tid);  // we don't join, thread cleans itself up
+        pthread_create(&tid, nullptr, client_thread, thread_fd);
+        pthread_detach(tid);
+#endif
     }
 
-    close(server_fd);
     return 0;
 }
