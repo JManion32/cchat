@@ -15,6 +15,5 @@ public:
 private:
     SocketType sockfd;
     ThreadType recvThread;
-
-    static void* recv_loop(void* arg);  // background thread
+    static void* recv_loop(void* arg);  // background thread for receiving server updates
 };

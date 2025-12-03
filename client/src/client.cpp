@@ -2,9 +2,7 @@
 #include <QMessageBox>
 #include <iostream>
 
-Client::Client(const std::string& ip, int port, QWidget *parent)
-    : QMainWindow(parent)
-{
+Client::Client(const std::string& ip, int port, QWidget *parent) : QMainWindow(parent) {
     sockfd = socket_create();
     if (sockfd < 0) {
         QMessageBox::critical(this, "Error", "Failed to create socket.");
@@ -29,7 +27,7 @@ Client::~Client() {
     socket_cleanup();
 }
 
-// Loop to listen for server updates (messages)
+// Loop to listen for server updates (mostly just messages)
 void* Client::recv_loop(void* arg) {
     Client* self = (Client*)arg;
 
