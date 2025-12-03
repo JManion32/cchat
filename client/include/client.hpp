@@ -7,7 +7,6 @@
 #include "../../common/include/thread_handler.hpp"
 
 class Client : public QMainWindow {
-    Q_OBJECT
 
 public:
     Client(const std::string& ip, int port, QWidget *parent = nullptr);

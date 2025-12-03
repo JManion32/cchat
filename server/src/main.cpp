@@ -15,7 +15,7 @@ void* client_thread(void* arg) {
     // e.g. read, write, etc.
     // socket_recv(client_fd, buffer, ...)
 
-    SocketClose(client_fd);
+    socket_close(client_fd);
     return nullptr;
 }
 
@@ -61,7 +61,7 @@ int main() {
         thread_detach(t);
     }
 
-    SocketClose(server_fd);
+    socket_close(server_fd);
     socket_cleanup();
     return 0;
 }

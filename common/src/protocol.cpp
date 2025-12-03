@@ -1,4 +1,4 @@
-#include "protocol.hpp"
+#include "../include/protocol.hpp"
 
 namespace Protocol {
 
