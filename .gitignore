@@ -16,4 +16,3 @@ bin/windows/*
 !bin/windows/.gitkeep
 
 !server/include/.gitkeep
-!scripts/.gitkeep
