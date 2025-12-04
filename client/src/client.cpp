@@ -1,6 +1,9 @@
 #include "../include/client.hpp"
 #include <QMessageBox>
 #include <QLabel>
+#include <QVBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
 #include <iostream>
 
 Client::Client(const std::string& ip, int port, QWidget *parent) : QMainWindow(parent) {
@@ -25,8 +28,44 @@ Client::Client(const std::string& ip, int port, QWidget *parent) : QMainWindow(p
     //=======================================================
     resize(800, 600);
 
-    QLabel* label = new QLabel("SECURE CHATROOM", this);
+    // Central widget
+    QWidget* central = new QWidget(this);
+    setCentralWidget(central);
+
+    // OUTER layout (handles centering)
+    QVBoxLayout* outer = new QVBoxLayout(central);
+
+    // push content toward center
+    outer->addStretch(1);
+
+    // INNER layout (your actual UI block)
+    QVBoxLayout* layout = new QVBoxLayout();
+    layout->setAlignment(Qt::AlignCenter);
+
+    // --- Site Label ---
+    QLabel* label = new QLabel("SECURE CHATROOM");
     label->setObjectName("site-label");
+    label->setAlignment(Qt::AlignCenter);
+    layout->addWidget(label);
+
+    // --- Username input ---
+    QLineEdit* usernameInput = new QLineEdit();
+    usernameInput->setObjectName("username-input");
+    usernameInput->setPlaceholderText("Enter username");
+    usernameInput->setFixedWidth(300);
+    layout->addWidget(usernameInput, 0, Qt::AlignCenter);
+
+    // --- Connect button ---
+    QPushButton* connectBtn = new QPushButton("Connect");
+    connectBtn->setObjectName("connect-button");
+    connectBtn->setFixedWidth(100);
+    layout->addWidget(connectBtn, 0, Qt::AlignCenter);
+
+    // Add your actual UI to outer layout
+    outer->addLayout(layout);
+
+    // push content toward center (bottom)
+    outer->addStretch(1);
 }
 
 Client::~Client() {
