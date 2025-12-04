@@ -1,5 +1,6 @@
 #include "../include/client.hpp"
 #include <QMessageBox>
+#include <QLabel>
 #include <iostream>
 
 Client::Client(const std::string& ip, int port, QWidget *parent) : QMainWindow(parent) {
@@ -15,11 +16,17 @@ Client::Client(const std::string& ip, int port, QWidget *parent) : QMainWindow(p
         return;
     }
 
-    QMessageBox::information(this, "Success", "Successfully connected to the server!");
-
     // Start receiver thread
     recvThread = thread_create(Client::recv_loop, this);
     thread_detach(recvThread);
+
+    //=======================================================
+    // QT STRUCTURE
+    //=======================================================
+    resize(800, 600);
+
+    QLabel* label = new QLabel("SECURE CHATROOM", this);
+    label->setObjectName("site-label");
 }
 
 Client::~Client() {
