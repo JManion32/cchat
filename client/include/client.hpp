@@ -1,4 +1,6 @@
+#include <iostream>
 #include <string>
+
 #include <QMainWindow>
 #include <QStackedWidget>
 #include <QMessageBox>
@@ -6,7 +8,6 @@
 #include <QVBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
-#include <iostream>
 
 #include "../../common/include/socket_handler.hpp"
 #include "../../common/include/thread_handler.hpp"

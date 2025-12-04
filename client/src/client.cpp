@@ -17,9 +17,6 @@ Client::Client(const std::string& ip, int port, QWidget *parent) : QMainWindow(p
     recvThread = thread_create(Client::recv_loop, this);
     thread_detach(recvThread);
 
-    // Not best practice, but I'm throwing all of the client 
-    // GUI code here for the sake of saving time
-
     //=======================================================
     // QT STRUCTURE
     //=======================================================
@@ -120,7 +117,7 @@ Client::~Client() {
     socket_cleanup();
 }
 
-// Receive loop for other users' messages
+// Receive loop for server updates
 void* Client::recv_loop(void* arg) {
     Client* self = (Client*)arg;
 
