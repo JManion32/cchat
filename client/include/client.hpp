@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
 
@@ -24,8 +25,13 @@ private:
 
     static void* recv_loop(void* arg);  // background thread for receiving server updates
 
-    QStackedWidget* stack;
+    QWidget* buildLoginScreen();
+    QWidget* buildChatScreen();
+    QWidget* buildShopScreen();
+
     QWidget* loginScreen;
     QWidget* chatScreen;
     QWidget* shopScreen;
+
+    QStackedWidget* stack = new QStackedWidget(this);
 };

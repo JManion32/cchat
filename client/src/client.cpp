@@ -17,105 +17,26 @@ Client::Client(const std::string& ip, int port, QWidget *parent) : QMainWindow(p
     recvThread = thread_create(Client::recv_loop, this);
     thread_detach(recvThread);
 
-    //=======================================================
-    // QT STRUCTURE
-    //=======================================================
-    // Gloabl styling
     resize(800, 600);
 
-    //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    loginScreen = buildLoginScreen();
+    chatScreen  = buildChatScreen();
+    shopScreen  = buildShopScreen();
 
-    //===================================
-    // Login Screen
-    //
-    // TODO:
-    // 1. Send username, or send anon
-    // 2. Make it less chopped
-    //===================================
-    QWidget* loginScreen = new QWidget(this);
-    setCentralWidget(loginScreen);
+    stack->addWidget(loginScreen);
+    stack->addWidget(chatScreen);
+    stack->addWidget(shopScreen);
 
-    // OUTER layout (handles centering)
-    QVBoxLayout* outer = new QVBoxLayout(loginScreen);
-
-    // push content toward center
-    outer->addStretch(1);
-
-    // INNER layout (your actual UI block)
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->setAlignment(Qt::AlignCenter);
-
-    // --- Site Label ---
-    QLabel* label = new QLabel("SECURE CHATROOM");
-    label->setObjectName("site-label");
-    label->setAlignment(Qt::AlignCenter);
-    layout->addWidget(label);
-
-    // --- Username input ---
-    QLineEdit* usernameInput = new QLineEdit();
-    usernameInput->setObjectName("username-input");
-    usernameInput->setPlaceholderText("Enter username");
-    usernameInput->setFixedWidth(300);
-    layout->addWidget(usernameInput, 0, Qt::AlignCenter);
-
-    // --- Connect button ---
-    QPushButton* connectBtn = new QPushButton("Connect");
-    connectBtn->setObjectName("connect-button");
-    connectBtn->setFixedWidth(100);
-    layout->addWidget(connectBtn, 0, Qt::AlignCenter);
-    connect(connectBtn, &QPushButton::clicked, [this]() {
-        stack->setCurrentIndex(1);
-    });
-
-    // Add your actual UI to outer layout
-    outer->addLayout(layout);
-
-    // push content toward center (bottom)
-    outer->addStretch(1);
-
-    //===================================
-    // Chatroom Screen
-    //
-    // TODO:
-    // 1. Add nav bar with: name (left), shop button that displays token count (right) - onclick, next page (back button top left)
-    // 2. Chat area - allow the user to send chats
-    // 3. Bottom field for sending chats (enter or click)
-    // 4. Make it less chopped
-    //===================================
-    chatScreen = new QWidget();
-    QVBoxLayout* chatLayout = new QVBoxLayout(chatScreen);
-
-    QLabel* chatLabel = new QLabel("You are connected!");
-    chatLabel->setAlignment(Qt::AlignCenter);
-    chatLayout->addWidget(chatLabel);
-
-    //===================================
-    // Theme Shop Screen
-    //
-    // TODO:
-    // 1. Add display with components for each theme
-    //===================================
-    shopScreen = new QWidget();
-    QVBoxLayout* shopLayout = new QVBoxLayout(shopScreen);
-
-    QLabel* shopLabel = new QLabel("You are connected!");
-    shopLabel->setAlignment(Qt::AlignCenter);
-    shopLayout->addWidget(shopLabel);
-
-    // More global stuff
-    stack = new QStackedWidget();
-    stack->addWidget(loginScreen);  // index 0
-    stack->addWidget(chatScreen);   // index 1
-    stack->addWidget(shopScreen);   // index 2
     setCentralWidget(stack);
 
-    show();
+    show(); // show the GUI
 }
 
 Client::~Client() {
     socket_close(sockfd);
 }
 
+// Receive updates from the server
 void* Client::recv_loop(void* arg) {
     Client* self = (Client*)arg;
 
@@ -137,4 +58,117 @@ void* Client::recv_loop(void* arg) {
     }
 
     return nullptr;
+}
+
+//===================================
+// Login Screen
+//===================================
+QWidget* Client::buildLoginScreen() {
+    QWidget* loginScreen = new QWidget();
+
+    QVBoxLayout* outer = new QVBoxLayout(loginScreen);
+    outer->addStretch(1);
+
+    QVBoxLayout* loginLayout = new QVBoxLayout();
+    loginLayout->setAlignment(Qt::AlignCenter);
+
+    QLabel* label = new QLabel("SECURE CHATROOM");
+    label->setObjectName("site-label");
+    label->setAlignment(Qt::AlignCenter);
+
+    QLineEdit* usernameInput = new QLineEdit();
+    usernameInput->setObjectName("username-input");
+    usernameInput->setPlaceholderText("Enter username");
+    usernameInput->setFixedWidth(300);
+
+    QPushButton* connectButton = new QPushButton("Connect");
+    connectButton->setObjectName("connect-button");
+    connectButton->setFixedWidth(100);
+    connect(connectButton, &QPushButton::clicked, [this]() {
+        stack->setCurrentIndex(1);
+    });
+
+    loginLayout->addWidget(label);
+    loginLayout->addWidget(usernameInput, 0, Qt::AlignCenter);
+    loginLayout->addWidget(connectButton, 0, Qt::AlignCenter);
+
+    outer->addLayout(loginLayout);
+    outer->addStretch(1);
+
+    return loginScreen;
+}
+
+//===================================
+// Chatroom Screen
+//===================================
+QWidget* Client::buildChatScreen() {
+    QWidget* chatScreen = new QWidget();
+
+    QVBoxLayout* outer = new QVBoxLayout(chatScreen);
+    outer->addStretch(1);
+
+    QVBoxLayout* chatLayout = new QVBoxLayout();
+
+    QHBoxLayout* messageNav = new QHBoxLayout();
+    QLabel* nameLabel = new QLabel("Justin");
+    nameLabel->setObjectName("name-label");
+    messageNav->addWidget(nameLabel);
+
+    QPushButton* shopButton = new QPushButton("Theme Shop");
+    shopButton->setObjectName("shop-button");
+    shopButton->setFixedWidth(100);
+    connect(shopButton, &QPushButton::clicked, [this]() {
+        stack->setCurrentIndex(2);
+    });
+    messageNav->addWidget(shopButton);
+
+    QVBoxLayout* messageDisplay = new QVBoxLayout();
+    messageDisplay->setAlignment(Qt::AlignCenter);
+
+    QHBoxLayout* messageType = new QHBoxLayout();
+    messageType->setAlignment(Qt::AlignCenter);
+
+    chatLayout->addLayout(messageNav);
+    chatLayout->addLayout(messageDisplay);
+    chatLayout->addLayout(messageType);
+
+    outer->addLayout(chatLayout);
+    outer->addStretch(1);
+
+    return chatScreen;
+}
+
+//===================================
+// Theme Shop Screen
+//===================================
+QWidget* Client::buildShopScreen() {
+    QWidget* shopScreen = new QWidget();
+
+    QVBoxLayout* outer = new QVBoxLayout(shopScreen);
+    outer->addStretch(1);
+
+    QVBoxLayout* shopLayout = new QVBoxLayout();
+
+    QHBoxLayout* shopNav = new QHBoxLayout();
+    QPushButton* returnButton = new QPushButton("Return");
+    returnButton->setObjectName("return-button");
+    returnButton->setFixedWidth(100);
+    connect(returnButton, &QPushButton::clicked, [this]() {
+        stack->setCurrentIndex(1);
+    });
+    shopNav->addWidget(returnButton);
+    QLabel* creditLabel = new QLabel("Credits: 100");
+    creditLabel->setObjectName("credit-label");
+    shopNav->addWidget(creditLabel);
+
+    QVBoxLayout* shopDisplay = new QVBoxLayout();
+    shopDisplay->setAlignment(Qt::AlignCenter);
+
+    shopLayout->addLayout(shopNav);
+    shopLayout->addLayout(shopDisplay);
+
+    outer->addLayout(shopLayout);
+    outer->addStretch(1);
+
+    return shopScreen;
 }
