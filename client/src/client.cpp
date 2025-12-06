@@ -339,47 +339,71 @@ QWidget* Client::buildShopScreen() {
     return shopScreen;
 }
 
-void Client::addMessage(const QString& text, bool fromSelf) {
-    // The actual text label
+void Client::addMessage(const QString& text, bool fromSelf)
+{
+    //
+    // 1. MESSAGE BUBBLE (only contains the actual text)
+    //
     QLabel* msg = new QLabel(text);
     msg->setWordWrap(true);
     msg->setObjectName(fromSelf ? "message-self" : "message-other");
-    msg->setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
 
-    // Bubble container that controls width
     QWidget* bubble = new QWidget();
     bubble->setObjectName(fromSelf ? "bubble-self" : "bubble-other");
 
     int bubbleWidth = static_cast<int>(scroll->viewport()->width() * 0.75);
     bubble->setFixedWidth(bubbleWidth);
-    bubble->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
 
     QVBoxLayout* bubbleLayout = new QVBoxLayout(bubble);
-    bubbleLayout->setContentsMargins(10, 6, 10, 6);
+    bubbleLayout->setContentsMargins(12, 8, 12, 8);
     bubbleLayout->addWidget(msg);
 
-    // Row container to align bubble left/right
+
+    // 2. METADATA ROW (UNDER the bubble)
+    QString senderName = fromSelf ? "You" : "Justin";  
+    QString timestamp  = QDateTime::currentDateTime().toString("hh:mm AP");
+
+    QLabel* meta = new QLabel(senderName + " • " + timestamp);
+    meta->setObjectName(fromSelf ? "message-meta-self" : "message-meta-other");
+    meta->setWordWrap(false);
+
+    meta->setAlignment(fromSelf ? Qt::AlignRight : Qt::AlignLeft);
+
+    //
+    // 3. ROW FOR ALIGNMENT (bubble + metadata vertically)
+    //
+    QWidget* msgBlock = new QWidget();
+    QVBoxLayout* msgBlockLayout = new QVBoxLayout(msgBlock);
+    msgBlockLayout->setSpacing(2);
+    msgBlockLayout->setContentsMargins(0, 0, 0, 0);
+    msgBlockLayout->addWidget(bubble);
+    msgBlockLayout->addWidget(meta);
+
+
+    //
+    // 4. OUTER ROW (left-align or right-align whole block)
+    //
     QWidget* row = new QWidget();
     QHBoxLayout* rowLayout = new QHBoxLayout(row);
     rowLayout->setContentsMargins(0, 0, 0, 0);
 
     if (fromSelf) {
         rowLayout->addStretch(1);
-        rowLayout->addWidget(bubble);
+        rowLayout->addWidget(msgBlock);
     } else {
-        rowLayout->addWidget(bubble);
+        rowLayout->addWidget(msgBlock);
         rowLayout->addStretch(1);
     }
 
     messageList->addWidget(row);
 
-    // Auto-scroll to bottom
+
+    //
+    // 5. AUTO SCROLL
+    //
     QTimer::singleShot(0, this, [this]() {
-        if (scroll && scroll->verticalScrollBar()) {
-            scroll->verticalScrollBar()->setValue(
-                scroll->verticalScrollBar()->maximum()
-            );
-        }
+        scroll->verticalScrollBar()->setValue(
+            scroll->verticalScrollBar()->maximum()
+        );
     });
 }
-

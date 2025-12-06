@@ -5,6 +5,7 @@
 #include <QStackedWidget>
 #include <QScrollArea>
 #include <QScrollBar>
+#include <QDateTime>
 #include <QTimer>
 #include <QMessageBox>
 #include <QLabel>

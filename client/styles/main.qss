@@ -32,18 +32,14 @@
     border-bottom: 1px solid #333;
 }
 
-#message-self {
-    background: #4a7cff;
+#message-self, #message-other {
     color: white;
-    padding: 8px 12px;
-    border-radius: 10px;
+    font-size: 15px;
 }
 
-#message-other {
-    background: #2e2e2e;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 10px;
+#message-meta-self, #message-meta-other {
+    font-size: 11px;
+    color: #cfcfcf;
 }
 
 #chat-header {
@@ -53,6 +49,17 @@
 #chat-input {
     background: #1e1e1e;
 }
+
+#bubble-self {
+    background: #3c6df0;
+    border-radius: 10px;
+}
+
+#bubble-other {
+    background: #2e2e2e;
+    border-radius: 10px;
+}
+
 
 
 /* ----------------------------------------
