@@ -156,6 +156,7 @@ QWidget* Client::buildShopScreen() {
     connect(returnButton, &QPushButton::clicked, [this]() {
         stack->setCurrentIndex(1);
     });
+
     shopNav->addWidget(returnButton);
     QLabel* creditLabel = new QLabel("Credits: 100");
     creditLabel->setObjectName("credit-label");
