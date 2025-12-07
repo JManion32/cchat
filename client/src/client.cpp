@@ -75,9 +75,13 @@ QWidget* Client::buildLoginScreen() {
     QVBoxLayout* loginLayout = new QVBoxLayout();
     loginLayout->setAlignment(Qt::AlignCenter);
 
-    QLabel* label = new QLabel("SECURE CHATROOM");
-    label->setObjectName("site-label");
-    label->setAlignment(Qt::AlignCenter);
+    QLabel* titleLabel = new QLabel("SECURE CHATROOM");
+    titleLabel->setObjectName("site-label");
+    titleLabel->setAlignment(Qt::AlignCenter);
+
+    QLabel* descLabel = new QLabel("Send messages to unlock cool themes!");
+    descLabel->setObjectName("site-desc");
+    descLabel->setAlignment(Qt::AlignCenter);
 
     QLineEdit* usernameInput = new QLineEdit();
     usernameInput->setObjectName("username-input");
@@ -91,7 +95,8 @@ QWidget* Client::buildLoginScreen() {
         stack->setCurrentIndex(1);
     });
 
-    loginLayout->addWidget(label);
+    loginLayout->addWidget(titleLabel);
+    loginLayout->addWidget(descLabel);
     loginLayout->addWidget(usernameInput, 0, Qt::AlignCenter);
     loginLayout->addWidget(connectButton, 0, Qt::AlignCenter);
 
