@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 
+#include <QApplication>
 #include <QMainWindow>
 #include <QStackedWidget>
 #include <QScrollArea>
@@ -13,6 +14,7 @@
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
+#include <QFile>
 
 #include "../../common/include/socket_handler.hpp"
 #include "../../common/include/thread_handler.hpp"
@@ -33,6 +35,7 @@ private:
     QWidget* buildChatScreen();
     QWidget* buildShopScreen();
     void addMessage(const QString& text, bool fromSelf);
+    void applyTheme(const QString& themePath);
 
     QWidget* loginScreen;
     QWidget* chatScreen;

@@ -66,6 +66,8 @@ void* Client::recv_loop(void* arg) {
 //===================================
 QWidget* Client::buildLoginScreen() {
     QWidget* loginScreen = new QWidget();
+    loginScreen->setObjectName("login-screen");
+
 
     QVBoxLayout* outer = new QVBoxLayout(loginScreen);
     outer->addStretch(1);
@@ -137,7 +139,7 @@ QWidget* Client::buildChatScreen() {
 
     // SHOP BUTTON
     QPushButton* shopButton = new QPushButton("Credits: 100");
-    shopButton->setObjectName("chat-shop-button");
+    shopButton->setObjectName("theme-shop-button");
     shopButton->setMinimumWidth(140);        // more flexible than fixedWidth
     shopButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -173,21 +175,24 @@ QWidget* Client::buildChatScreen() {
 
     // INPUT BAR LAYOUT
     QHBoxLayout* inputLayout = new QHBoxLayout(inputWidget);
-    inputLayout->setContentsMargins(15, 10, 15, 10);   // FIXED: add interior padding
+    inputLayout->setContentsMargins(15, 10, 15, 10);
     inputLayout->setSpacing(10);
 
     // MESSAGE BOX
     QLineEdit* messageBox = new QLineEdit();
-    messageBox->setObjectName("chat-message-box");
+    messageBox->setObjectName("message-input-box");
     messageBox->setPlaceholderText("Type a message…");
     messageBox->setMinimumWidth(200);
-    messageBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);  // FIXED
+    messageBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     // SEND BUTTON
     QPushButton* sendButton = new QPushButton("Send");
     sendButton->setObjectName("chat-send-button");
-    sendButton->setMinimumWidth(100);                 // FIXED: no fixedWidth()
+    sendButton->setMinimumWidth(100);
     sendButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    connect(sendButton, &QPushButton::clicked, [this]() {
+        addMessage("New Message", true);
+    });
 
     inputLayout->addWidget(messageBox);
     inputLayout->addWidget(sendButton);
@@ -209,6 +214,7 @@ QWidget* Client::buildChatScreen() {
     addMessage("Short one.", false);
     addMessage("This is a longer message from myself that should align "
             "to the right and stay within 75% width.", true);
+    addMessage("This is another message", false);
 
     return chatScreen;
 }
@@ -272,19 +278,29 @@ QWidget* Client::buildShopScreen() {
     struct ThemeItem {
         QString name;
         QString imagePath;
+        QString qssPath;
         int price;
     };
 
     std::vector<ThemeItem> themes = {
-        {"Light Mode",   "../../client/themes/light_mode.png",       100},
-        {"Dark Mode",    "../../client/themes/dark_mode.png",        100},
-        {"Black Mode",   "../../client/themes/black_mode.png",       200},
-        {"Neon Lights",  "../../client/themes/neon_mode.png",        300},
-        {"Forest",       "../../client/themes/forest_mode.png",      500},
-        {"Retro",        "../../client/themes/retro_mode.png",       500},
-        {"Halloween",    "../../client/themes/halloween_mode.png",   1000},
-        {"Festive",      "../../client/themes/festive_mode.png",     1000},
-        {"Premium Gold", "../../client/themes/premium_mode.png",     1000000},
+        
+        {"Light Mode",   "../../client/themes/light_mode.png", "../../client/styles/theme-styles/light.qss",   0},
+
+        {"Dark Mode",   "../../client/themes/dark_mode.png", "../../client/styles/theme-styles/black.qss",   0},
+
+        {"Warm Tones",   "../../client/themes/warm_mode.png", "../../client/styles/theme-styles/warm.qss",    100},
+
+        {"Neon Lights",  "../../client/themes/neon_mode.png", "../../client/styles/theme-styles/neon.qss",    100},
+
+        {"Forest",       "../../client/themes/forest_mode.png", "../../client/styles/theme-styles/forest.qss",  300},
+
+        {"Retro",        "../../client/themes/retro_mode.png", "../../client/styles/theme-styles/retro.qss",   300},
+
+        {"Halloween",    "../../client/themes/halloween_mode.png", "../../client/styles/theme-styles/halloween.qss", 500},
+
+        {"Festive",      "../../client/themes/festive_mode.png", "../../client/styles/theme-styles/festive.qss", 500},
+
+        {"Premium Gold", "../../client/themes/premium_mode.png", "../../client/styles/theme-styles/premium.qss", 1000000},
     };
 
     const int columns = 3;  // scalable grid width
@@ -320,9 +336,10 @@ QWidget* Client::buildShopScreen() {
         buyBtn->setFixedWidth(120);
 
         connect(buyBtn, &QPushButton::clicked, [this, themes, i]() {
-            // TODO: Add purchase logic
             qDebug() << "Purchased theme:" << themes[i].name;
+            applyTheme(themes[i].qssPath);
         });
+
 
         cardLayout->addWidget(img, 0, Qt::AlignCenter);
         cardLayout->addWidget(title, 0, Qt::AlignCenter);
@@ -339,8 +356,7 @@ QWidget* Client::buildShopScreen() {
     return shopScreen;
 }
 
-void Client::addMessage(const QString& text, bool fromSelf)
-{
+void Client::addMessage(const QString& text, bool fromSelf) {
     //
     // 1. MESSAGE BUBBLE (only contains the actual text)
     //
@@ -397,13 +413,30 @@ void Client::addMessage(const QString& text, bool fromSelf)
 
     messageList->addWidget(row);
 
-
-    //
-    // 5. AUTO SCROLL
-    //
+    // 5. Auto Scroll to bottom
     QTimer::singleShot(0, this, [this]() {
-        scroll->verticalScrollBar()->setValue(
-            scroll->verticalScrollBar()->maximum()
-        );
+        QTimer::singleShot(0, this, [this]() {
+            scroll->verticalScrollBar()->setValue(
+                scroll->verticalScrollBar()->maximum()
+            );
+        });
     });
 }
+
+void Client::applyTheme(const QString& themePath) {
+    QString style;
+
+    QFile mainFile("../../client/styles/main.qss");
+    if (mainFile.open(QFile::ReadOnly)) {
+        style += QString::fromUtf8(mainFile.readAll()) + "\n";
+    }
+
+    QFile themeFile(themePath);
+    if (themeFile.open(QFile::ReadOnly)) {
+        style += QString::fromUtf8(themeFile.readAll()) + "\n";
+    }
+
+    // Apply to this window + all child widgets
+    this->setStyleSheet(style);
+}
+

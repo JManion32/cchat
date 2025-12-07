@@ -1,3 +1,10 @@
+/* ----------------------------------------------------------
+   LOGIN SCREEN - We don't need to change the colors later
+-----------------------------------------------------------*/
+#login-screen {
+    background-color: #1f1f1f;
+}
+
 #site-label {
     color: #4CAF50;
     font-size: 48px;
@@ -21,83 +28,68 @@
    CHAT ROOM
 -----------------------------------------*/
 #chat-header {
-    background-color: #1e1e1e;
-    padding: 10px;
-    border-bottom: 1px solid #333;
+    padding: 8px 12px;
 }
 
-#chat-input {
-    background-color: #1e1e1e;
+#chat-username {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#theme-shop-button {
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+#message-input-box {
+    border-radius: 4px;
+    padding: 6px;
+}
+
+#chat-content {
     padding: 10px;
-    border-bottom: 1px solid #333;
 }
 
 #message-self, #message-other {
-    color: white;
     font-size: 15px;
 }
 
 #message-meta-self, #message-meta-other {
     font-size: 11px;
-    color: #cfcfcf;
-}
-
-#chat-header {
-    background: #1e1e1e;
-}
-
-#chat-input {
-    background: #1e1e1e;
 }
 
 #bubble-self {
-    background: #3c6df0;
     border-radius: 10px;
 }
 
 #bubble-other {
-    background: #2e2e2e;
     border-radius: 10px;
 }
 
+#chat-send-button {
+    height: 32px;
+    border-radius: 8px;
+}
 
 
 /* ----------------------------------------
    SHOP SCREEN STYLING
 -----------------------------------------*/
-
-#shop-screen {
-    background-color: #1e1e1e;
-}
-
 /* Header */
 #shop-return-button {
-    background: #343434;
-    color: white;
     padding: 8px 12px;
     border-radius: 6px;
 }
 
-#shop-return-button:hover {
-    background: #505050;
-}
-
 #shop-credit-label {
-    color: white;
     font-size: 18px;
     font-weight: bold;
 }
 
 /* Theme Cards */
 #theme-card {
-    background: #2a2a2a;
-    border: 1px solid #3c3c3c;
     border-radius: 12px;
     padding: 15px;
-}
-
-#theme-card:hover {
-    border-color: #888;
 }
 
 /* Image */
@@ -107,7 +99,6 @@
 
 /* Title */
 #theme-title {
-    color: white;
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 10px;
@@ -115,12 +106,7 @@
 
 /* Buy Button */
 #theme-buy-button {
-    background: #0078ff;
     color: white;
     padding: 6px 12px;
     border-radius: 6px;
-}
-
-#theme-buy-button:hover {
-    background: #3399ff;
 }
