@@ -45,6 +45,8 @@ private:
     QString username;
     QString token;
     int credit_count = 0;
+    std::vector<bool> ownedThemes = std::vector<bool>(9, false);
+
 
     // GUI
     QWidget* buildLoginScreen();
@@ -61,6 +63,7 @@ private:
     QLabel* nameLabel;
     QPushButton* shopButton;
     QLabel* creditLabel;
+    std::vector<QPushButton*> themeButtons;
 
     QScrollArea* scroll = nullptr;
     QWidget* scrollContent = nullptr;

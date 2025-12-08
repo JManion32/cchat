@@ -18,6 +18,9 @@ struct ClientConnection {
     std::string username;
     std::string token;
     int credits = 0;
+
+    std::vector<bool> ownedThemes = std::vector<bool>(9, false);
+
 };
 
 void broadcastMessage(const Message& msg);

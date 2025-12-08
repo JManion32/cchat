@@ -146,7 +146,7 @@ void handleChatSend(SocketType client_fd, const std::string& payload) {
 // PURCHASE REQUEST
 //====================================================
 void handlePurchaseRequest(SocketType client_fd, const std::string& payload) {
-    // Expected payload: "<token>|<credits>|<item_id>"
+    // Expected: "<token>|<credits>|<item_id>"
     std::vector<std::string> parts;
     size_t start = 0, end;
 
@@ -165,7 +165,7 @@ void handlePurchaseRequest(SocketType client_fd, const std::string& payload) {
     int clientCredits = std::stoi(parts[1]);
     int itemIndex     = std::stoi(parts[2]);
 
-    // Hard-coded prices (server authoritative)
+    // Prices (server authoritative)
     const int prices[9] = {0, 0, 100, 100, 200, 300, 300, 300, 1000000};
 
     if (itemIndex < 0 || itemIndex >= 9) {
@@ -198,35 +198,48 @@ void handlePurchaseRequest(SocketType client_fd, const std::string& payload) {
         return;
     }
 
-    // Check if user can afford item
-    if (c->credits < price) {
+    // Check if already owned
+    if (c->ownedThemes[itemIndex]) {
         pthread_mutex_unlock(&g_clients_mutex);
-
-        std::cout << "[SERVER] PURCHASE: insufficient credits\n";
 
         Message resp;
         resp.type = MessageType::PURCHASE_RESPONSE;
-        resp.payload = "NO";
+        resp.payload = "NO|OWNED";
 
         auto data = Protocol::serialize(resp);
-        socket_send(client_fd, (const char*)data.data(), data.size());
+        socket_send(client_fd, (char*)data.data(), data.size());
         return;
     }
 
-    // Deduct credits
+    // Check affordability
+    if (c->credits < price) {
+        pthread_mutex_unlock(&g_clients_mutex);
+
+        Message resp;
+        resp.type = MessageType::PURCHASE_RESPONSE;
+        resp.payload = "NO|CREDITS";
+
+        auto data = Protocol::serialize(resp);
+        socket_send(client_fd, (char*)data.data(), data.size());
+        return;
+    }
+
+    // SUCCESS: deduct credits and mark owned
     c->credits -= price;
+    c->ownedThemes[itemIndex] = true;
+
     int newCredits = c->credits;
 
     pthread_mutex_unlock(&g_clients_mutex);
 
-    std::cout << "[SERVER] PURCHASE: OK item=" << itemIndex 
+    std::cout << "[SERVER] PURCHASE OK: item=" << itemIndex
               << " new credits=" << newCredits << "\n";
 
-    // Successful purchase
+    // SUCCESS PAYLOAD: YES|itemIndex|newCredits
     Message resp;
     resp.type = MessageType::PURCHASE_RESPONSE;
-    resp.payload = "YES|" + std::to_string(newCredits);
+    resp.payload = "YES|" + std::to_string(itemIndex) + "|" + std::to_string(newCredits);
 
     auto data = Protocol::serialize(resp);
-    socket_send(client_fd, (const char*)data.data(), data.size());
+    socket_send(client_fd, (char*)data.data(), data.size());
 }

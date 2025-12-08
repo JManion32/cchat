@@ -10,6 +10,7 @@ Client::Client(const std::string& ip, int port, QWidget *parent) : QMainWindow(p
     }
 
     resize(800, 600);
+    ownedThemes.resize(9, false);
 
     loginScreen = buildLoginScreen();
     chatScreen  = buildChatScreen();
@@ -104,7 +105,6 @@ void Client::processIncomingMessage(const Message& msg) {
                     break;
 
                 case MessageType::CHAT_DELIVER: {
-
                     // Payload format: token|username|message
                     std::string p = msg.payload;
                     size_t pos1 = p.find('|');
@@ -122,13 +122,16 @@ void Client::processIncomingMessage(const Message& msg) {
                     QString qUser = QString::fromStdString(senderUser);
                     QString qMsg  = QString::fromStdString(senderMsg);
 
-                    credit_count += 1;
-
-                    shopButton->setText("Theme Shop (" + QString::number(credit_count) + ")");
-                    creditLabel->setText("Credits: " + QString::number(credit_count));
+                    // Only increment local credits if WE sent this message
+                    if (fromSelf) {
+                        credit_count += 1;
+                        shopButton->setText("Theme Shop (" + QString::number(credit_count) + ")");
+                        if (creditLabel) {
+                            creditLabel->setText("Credits: " + QString::number(credit_count));
+                        }
+                    }
 
                     addMessage(qUser, qMsg, fromSelf);
-
                     break;
                 }
 
@@ -136,11 +139,38 @@ void Client::processIncomingMessage(const Message& msg) {
                     QString r = QString::fromStdString(msg.payload);
 
                     if (r.startsWith("YES")) {
+                        // Expected format: YES|<itemID>|<newCredits>
                         QStringList parts = r.split("|");
-                        this->credit_count = parts[1].toInt();
-                        QMessageBox::information(this, "Purchase", "Theme unlocked!");
+                        if (parts.size() >= 3) {
+                            int itemID      = parts[1].toInt();
+                            int newCredits  = parts[2].toInt();
+
+                            credit_count = newCredits;
+
+                            // Update chat header button
+                            if (shopButton) {
+                                shopButton->setText(QString("Theme Shop (%1)").arg(credit_count));
+                            }
+
+                            // Update shop header label (if shop is built)
+                            if (creditLabel) {
+                                creditLabel->setText("Credits: " + QString::number(credit_count));
+                            }
+
+                            // Update the specific theme button, if it exists
+                            if (itemID >= 0 && itemID < (int)themeButtons.size() && themeButtons[itemID]) {
+                                themeButtons[itemID]->setText("Purchased");
+                                themeButtons[itemID]->setEnabled(false);
+                            }
+
+                            QMessageBox::information(this, "Purchase", "Theme unlocked!");
+                        } else {
+                            // Malformed YES response
+                            QMessageBox::warning(this, "Purchase", "Purchase response malformed.");
+                        }
                     } else {
-                        QMessageBox::warning(this, "Purchase", "Not enough credits!");
+                        // NO or error message, don’t leave button permanently disabled
+                        QMessageBox::warning(this, "Purchase", "Purchase failed: " + r);
                     }
                     break;
                 }
@@ -380,9 +410,8 @@ QWidget* Client::buildChatScreen() {
     return chatScreen;
 }
 
-
 //===================================
-// Theme Shop Screen
+// Theme Shop Build
 //===================================
 QWidget* Client::buildShopScreen() {
     QWidget* shopScreen = new QWidget();
@@ -402,7 +431,6 @@ QWidget* Client::buildShopScreen() {
     //===================================
     QHBoxLayout* header = new QHBoxLayout();
 
-    // Return button
     QPushButton* returnButton = new QPushButton("← Back");
     returnButton->setObjectName("shop-return-button");
     returnButton->setFixedWidth(120);
@@ -410,32 +438,29 @@ QWidget* Client::buildShopScreen() {
         stack->setCurrentIndex(1);
     });
 
-    // Credits label
-    creditLabel = new QLabel("Credits: 0");
+    creditLabel = new QLabel("Credits: " + QString::number(credit_count));
     creditLabel->setObjectName("shop-credit-label");
     creditLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 
-    // Add to layout PROPERLY
     header->addWidget(returnButton);
-    header->addStretch(1);       // IMPORTANT
+    header->addStretch(1);
     header->addWidget(creditLabel);
 
-    // Wrap the header in a fixed-height widget
     QWidget* headerWidget = new QWidget();
     headerWidget->setObjectName("shop-header");
     headerWidget->setLayout(header);
-    headerWidget->setFixedHeight(60);  // adjust height as needed
-    headerWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+    headerWidget->setFixedHeight(60);
 
-    shopLayout->addWidget(headerWidget, 0);
+    shopLayout->addWidget(headerWidget);
 
     //===================================
     // GRID OF THEMES
     //===================================
-    QGridLayout* grid = new QGridLayout();
-    grid->setSpacing(25);
+
+    themeButtons.resize(9, nullptr);   // 9 themes total
 
     struct ThemeItem {
+        int id;
         QString name;
         QString imagePath;
         QString qssPath;
@@ -443,74 +468,108 @@ QWidget* Client::buildShopScreen() {
     };
 
     std::vector<ThemeItem> themes = {
-        
-        {"Light Mode",   "../../client/themes/light_mode.png", "../../client/styles/theme-styles/light.qss",   0},
 
-        {"Dark Mode",   "../../client/themes/dark_mode.png", "../../client/styles/theme-styles/black.qss",   0},
+        {0, "Light Mode",   "../../client/themes/light_mode.png",   "../../client/styles/theme-styles/light.qss",      0},
+        {1, "Dark Mode",    "../../client/themes/dark_mode.png",    "../../client/styles/theme-styles/black.qss",      0},
 
-        {"Warm Tones",   "../../client/themes/warm_mode.png", "../../client/styles/theme-styles/warm.qss",    100},
+        {2, "Warm Tones",   "../../client/themes/warm_mode.png",    "../../client/styles/theme-styles/warm.qss",     100},
+        {3, "Neon Lights",  "../../client/themes/neon_mode.png",    "../../client/styles/theme-styles/neon.qss",     100},
 
-        {"Neon Lights",  "../../client/themes/neon_mode.png", "../../client/styles/theme-styles/neon.qss",    100},
+        {4, "Forest",       "../../client/themes/forest_mode.png",  "../../client/styles/theme-styles/forest.qss",   300},
+        {5, "Retro",        "../../client/themes/retro_mode.png",   "../../client/styles/theme-styles/retro.qss",    300},
 
-        {"Forest",       "../../client/themes/forest_mode.png", "../../client/styles/theme-styles/forest.qss",  300},
+        {6, "Halloween",    "../../client/themes/halloween_mode.png","../../client/styles/theme-styles/halloween.qss",500},
+        {7, "Festive",      "../../client/themes/festive_mode.png", "../../client/styles/theme-styles/festive.qss",  500},
 
-        {"Retro",        "../../client/themes/retro_mode.png", "../../client/styles/theme-styles/retro.qss",   300},
-
-        {"Halloween",    "../../client/themes/halloween_mode.png", "../../client/styles/theme-styles/halloween.qss", 500},
-
-        {"Festive",      "../../client/themes/festive_mode.png", "../../client/styles/theme-styles/festive.qss", 500},
-
-        {"Premium Gold", "../../client/themes/premium_mode.png", "../../client/styles/theme-styles/premium.qss", 1000000},
+        {8, "Premium Gold", "../../client/themes/premium_mode.png", "../../client/styles/theme-styles/premium.qss",1000000},
     };
 
-    const int columns = 3;  // scalable grid width
+    QGridLayout* grid = new QGridLayout();
+    grid->setSpacing(25);
+
+    const int columns = 3;
 
     for (int i = 0; i < (int)themes.size(); i++) {
+
         int row = i / columns;
         int col = i % columns;
+
+        const ThemeItem& theme = themes[i];
+        int themeId = theme.id;
 
         QWidget* card = new QWidget();
         card->setObjectName("theme-card");
 
-        QVBoxLayout* cardLayout = new QVBoxLayout(card);
-        cardLayout->setAlignment(Qt::AlignCenter);
+        // Make the card expand to fill the grid cell
+        card->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+        QVBoxLayout* cardLayout = new QVBoxLayout(card);
+
+        // Align content to the top, not the center
+        cardLayout->setAlignment(Qt::AlignTop);
+
+        // Image
         QLabel* img = new QLabel();
         img->setObjectName("theme-image");
         img->setAlignment(Qt::AlignCenter);
-
-        // Fix the widget size
         img->setFixedHeight(50);
 
-        QPixmap pix(themes[i].imagePath);
+        QPixmap pix(theme.imagePath);
         img->setPixmap(
             pix.scaled(180, 180, Qt::KeepAspectRatio, Qt::SmoothTransformation)
         );
 
-        QLabel* title = new QLabel(themes[i].name);
+        // Title
+        QLabel* title = new QLabel(theme.name);
         title->setObjectName("theme-title");
         title->setAlignment(Qt::AlignCenter);
 
-        QPushButton* buyBtn = new QPushButton("Buy (" + QString::number(themes[i].price) + ")");
+        // Button
+        QPushButton* buyBtn = new QPushButton();
         buyBtn->setObjectName("theme-buy-button");
         buyBtn->setFixedWidth(120);
+        themeButtons[themeId] = buyBtn;
 
-        connect(buyBtn, &QPushButton::clicked, [this, themes, i]() {
-            qDebug() << "Purchased theme:" << themes[i].name;
-            applyTheme(themes[i].qssPath);
+        // Button text depends on ownership
+        if (ownedThemes[themeId]) {
+            buyBtn->setText("Purchased");
+        } else {
+            buyBtn->setText("Buy (" + QString::number(theme.price) + ")");
+        }
+
+        // Handle click
+        connect(buyBtn, &QPushButton::clicked, [this, themeId, theme]() {
+
+            if (ownedThemes[themeId]) {
+                // Already bought → just apply theme
+                applyTheme(theme.qssPath);
+                return;
+            }
+
+            // Not owned → send purchase request
+            Message msg;
+            msg.type = MessageType::PURCHASE_REQUEST;
+            msg.payload =
+                token.toStdString() + "|" +
+                std::to_string(credit_count) + "|" +
+                std::to_string(themeId);
+
+            auto data = Protocol::serialize(msg);
+            socket_send(sockfd, (char*)data.data(), data.size());
         });
 
+        // Add widgets
+        cardLayout->addWidget(img, 0, Qt::AlignHCenter);
+        cardLayout->addWidget(title, 0, Qt::AlignHCenter);
+        cardLayout->addWidget(buyBtn, 0, Qt::AlignHCenter);
 
-        cardLayout->addWidget(img, 0, Qt::AlignCenter);
-        cardLayout->addWidget(title, 0, Qt::AlignCenter);
-        cardLayout->addWidget(buyBtn, 0, Qt::AlignCenter);
+        // Push everything to the top visually
+        cardLayout->addStretch();
 
         grid->addWidget(card, row, col);
     }
 
     shopLayout->addLayout(grid);
-
-    // add to outer
     outer->addLayout(shopLayout);
 
     return shopScreen;
