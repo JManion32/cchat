@@ -1,10 +1,52 @@
 ## Secure Chatroom App in C++
-Core features:
-- encrypted chatroom
-- theme selection
-Hosted via DigitalOcean
+Tested on: Ubuntu 24.04 and Windows 11. We had some trouble with the 
+Windows side of things, but Linux has been thoroughly tested and proven 
+to work.
 
-## Cloning the Repo
+### Running on Linux
+Make the client and server side:
 ```
-git clone https://github.com/JManion32/secure-chat-app.git
+make
+```
+
+Cleanup .o files and executables from previous makes:
+```
+make clean
+```
+
+Make the client only:
+```
+cd client
+make -C client
+```
+
+Make the server only:
+```
+cd server
+make -C server
+```
+
+### Running on Windows
+```
+cd scripts
+```
+
+Make the client and server side:
+```
+build_windows.bat
+```
+
+Cleanup files:
+```
+build_windows.bat clean
+```
+
+Make the client only:
+```
+build_windows.bat client
+```
+
+Make the server only:
+```
+build_windows.bat server
 ```
