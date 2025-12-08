@@ -20,6 +20,21 @@ struct ClientConnection {
     int credits = 0;
 };
 
-// Helpers
 void broadcastMessage(const Message& msg);
 void removeClient(SocketType sock);
+
+//====================================================
+// AUTH REQUEST
+//====================================================
+void handleAuthRequest(SocketType client_fd, const std::string& username);
+std::string generateToken();
+
+//====================================================
+// SEND CHAT
+//====================================================
+void handleChatSend(SocketType client_fd, const std::string& payload);
+
+//====================================================
+// PURCHASE REQUEST
+//====================================================
+void handlePurchaseRequest(SocketType client_fd, const std::string& payload);

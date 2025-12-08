@@ -3,11 +3,35 @@
 #include <iostream>
 #include <cstring>
 
+void handleMessage(SocketType client_fd, const Message& msg) {
+    switch (msg.type) {
+
+        case MessageType::AUTH_REQUEST:
+            std::cout << "[SERVER] -> AUTH_REQUEST" << std::endl;
+            handleAuthRequest(client_fd, msg.payload);
+            break;
+
+        case MessageType::CHAT_SEND:
+            std::cout << "[SERVER] -> CHAT_SEND" << std::endl;
+            handleChatSend(client_fd, msg.payload);
+            break;
+
+        case MessageType::PURCHASE_REQUEST:
+            std::cout << "[SERVER] -> PURCHASE_REQUEST" << std::endl;
+            handlePurchaseRequest(client_fd, msg.payload);
+            break;
+
+        default:
+            std::cout << "[SERVER] Unknown MessageType: " << (int)msg.type << std::endl;
+            break;
+    }
+}
+
 void* client_thread(void* arg) {
     SocketType client_fd = *(SocketType*)arg;
     delete (SocketType*)arg;
 
-    std::cout << "[SERVER] Client thread started\n";
+    std::cout << "[SERVER] Client thread started" << std::endl;
 
     // Register client
     pthread_mutex_lock(&g_clients_mutex);
@@ -22,7 +46,7 @@ void* client_thread(void* arg) {
     while (true) {
         int bytes = socket_recv(client_fd, reinterpret_cast<char*>(temp), sizeof(temp));
         if (bytes <= 0) {
-            std::cout << "[SERVER] Client disconnected\n";
+            std::cout << "[SERVER] Client disconnected" << std::endl;
             break;
         }
 
@@ -37,7 +61,7 @@ void* client_thread(void* arg) {
             uint32_t body_len = ntohl(body_len_be);
 
             if (body_len < 1) {
-                std::cerr << "[SERVER] Invalid length\n";
+                std::cerr << "[SERVER] Invalid length" << std::endl;
                 goto disconnect;
             }
 
@@ -49,12 +73,11 @@ void* client_thread(void* arg) {
 
             Message msg;
             if (!Protocol::deserialize(body_ptr, body_len, msg)) {
-                std::cerr << "[SERVER] Deserialization failed\n";
+                std::cerr << "[SERVER] Deserialization failed" << std::endl;
                 goto next_packet;
             }
-
-            // TODO: implement handleMessage(client_fd, msg);
-            std::cout << "[SERVER] Received message type: " << (int)msg.type << "\n";
+            handleMessage(client_fd, msg);
+            std::cout << "[SERVER] Received message type: " << (int)msg.type << std::endl;
 
         next_packet:
             recv_buffer.erase(recv_buffer.begin(), recv_buffer.begin() + full_packet);

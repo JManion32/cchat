@@ -1,21 +1,13 @@
 #include "../include/client.hpp"
 
 Client::Client(const std::string& ip, int port, QWidget *parent) : QMainWindow(parent) {
-    sockfd = socket_create();
+    this->sockfd = socket_create();
+    this->ip = ip.c_str();
+    this->port = port;
     if (sockfd < 0) {
         QMessageBox::critical(this, "Error", "Failed to create socket.");
         return;
     }
-
-    if (!socket_connect(sockfd, ip.c_str(), port)) {
-        QMessageBox::critical(this, "Error", "Failed to connect to server.");
-        socket_close(sockfd);
-        return;
-    }
-
-    // Start receiver thread
-    recvThread = thread_create(Client::recv_loop, this);
-    thread_detach(recvThread);
 
     resize(800, 600);
 
@@ -29,7 +21,7 @@ Client::Client(const std::string& ip, int port, QWidget *parent) : QMainWindow(p
 
     setCentralWidget(stack);
 
-    show(); // show the GUI
+    show();
 }
 
 Client::~Client() {
@@ -91,8 +83,34 @@ QWidget* Client::buildLoginScreen() {
     QPushButton* connectButton = new QPushButton("Connect");
     connectButton->setObjectName("connect-button");
     connectButton->setFixedWidth(100);
-    connect(connectButton, &QPushButton::clicked, [this]() {
-        stack->setCurrentIndex(1);
+
+    // Start disabled
+    connectButton->setEnabled(false);
+
+    // Enable button only when there is text
+    connect(usernameInput, &QLineEdit::textChanged, [connectButton](const QString& text) {
+        connectButton->setEnabled(!text.trimmed().isEmpty());
+    });
+
+    connect(connectButton, &QPushButton::clicked, [this, usernameInput]() {         
+        if (!socket_connect(sockfd, ip.c_str(), port)) {
+            QMessageBox::critical(this, "Error", "Failed to connect to server.");
+            socket_close(sockfd);
+            return;
+        }
+
+        // Build AUTH_REQUEST
+        Message authMsg;
+        authMsg.type = MessageType::AUTH_REQUEST;
+
+        this->username = usernameInput->text();
+        authMsg.payload = username.toStdString();
+
+        auto data = Protocol::serialize(authMsg);
+        socket_send(sockfd, (const char*)data.data(), data.size());
+
+        recvThread = thread_create(Client::recv_loop, this);
+        thread_detach(recvThread);
     });
 
     loginLayout->addWidget(titleLabel);
@@ -139,7 +157,6 @@ QWidget* Client::buildChatScreen() {
     nameLabel->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
     header->addWidget(nameLabel);
 
-    // SPACE BETWEEN LEFT AND RIGHT
     header->addStretch(1);
 
     // SHOP BUTTON
@@ -433,7 +450,6 @@ void Client::applyTheme(const QString& themePath) {
         style += QString::fromUtf8(themeFile.readAll()) + "\n";
     }
 
-    // Apply to this window + all child widgets
     this->setStyleSheet(style);
 }
 
