@@ -39,7 +39,7 @@ private:
     std::string ip;
     int port;
     ThreadType recvThread;
-    static void* recv_loop(void* arg);  // background thread for receiving server updates
+    static void* recv_loop(void* arg);
     void processIncomingMessage(const Message& msg);
 
     // Client Information

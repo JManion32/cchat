@@ -1,7 +1,7 @@
 all:
 	$(MAKE) -C server
-	$(MAKE) -C client
+	$(MAKE) -C client_gui
 
 clean:
 	$(MAKE) -C server clean
-	$(MAKE) -C client clean
+	$(MAKE) -C client_gui clean

@@ -27,26 +27,4 @@ make -C server
 ```
 
 ### Running on Windows
-```
-cd scripts
-```
-
-Make the client and server side:
-```
-build_windows.bat
-```
-
-Cleanup files:
-```
-build_windows.bat clean
-```
-
-Make the client only:
-```
-build_windows.bat client
-```
-
-Make the server only:
-```
-build_windows.bat server
-```
+Does not currently work, will revisit in the future.
