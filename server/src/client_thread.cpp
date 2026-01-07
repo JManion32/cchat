@@ -36,9 +36,9 @@ void* client_thread(void* arg) {
     std::cout << "[SERVER] Client thread started" << std::endl;
 
     // Register client
-    pthread_mutex_lock(&g_clients_mutex);
-    g_clients.push_back({ client_fd, "", "", 1 });
-    pthread_mutex_unlock(&g_clients_mutex);
+    pthread_mutex_lock(&global_clients_mutex);
+    global_clients.push_back(Client(client_fd, "", "", 1));
+    pthread_mutex_unlock(&global_clients_mutex);
 
     std::vector<uint8_t> recv_buffer;
     recv_buffer.reserve(2048);
