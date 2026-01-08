@@ -1,0 +1,113 @@
+.home-page-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    align-items: center;
+}
+
+.home-content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 16rem;
+    z-index: 1;
+}
+
+.home-footer-container {
+    margin: auto 0 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+    z-index: 1;
+}
+
+.site-title {
+    font-size: 7.5rem;
+    margin: 0;
+    color: var(--light-green);
+}
+
+.name-error {
+    color: var(--danger-red);
+    font-weight: bold;
+    margin-top: 1.25rem;
+    margin-bottom: 0.45rem;
+}
+
+.hide-error {
+    visibility: hidden;
+}
+
+.name-input {
+    width: 24rem;
+    padding: 0.65rem;
+    border-radius: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background: var(--site-bg);
+    color: var(--standard-white);
+    border: solid 1px var(--light-green);
+    transition: var(--site-transition);
+}
+
+.start-btn {
+    font-weight: bold;
+    padding: 0.75rem 2rem;
+    margin-top: 3rem;
+    font-size: 1.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: var(--site-transition);
+    color: var(--light-green);
+    border: 1px solid var(--light-green);
+}
+
+.start-btn:focus,
+.start-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.start-btn:active, .start-btn:focus, .start-btn:focus-visible {
+  border: 1px solid var(--light-green);
+  border-radius: 0.5rem;
+}
+
+.start-btn:hover {
+    background: var(--light-green);
+    color: var(--standard-black);
+    border: 1px solid var(--light-green);
+}
+
+.start-btns-container {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.footer-link {
+    font-size: 1.3rem;
+    font-weight: bold;
+    transition: var(--site-transition);
+    min-width: 6rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--light-green);
+}
+
+.footer-link:hover {
+  cursor: pointer;
+  scale: 1.1;
+}
+
+.home-footer-container span {
+    color: var(--standard-white);
+    text-align: center;
+    font-size: 1.3rem;
+}
+
+#matrix-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
