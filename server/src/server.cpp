@@ -1,9 +1,6 @@
 #include "../include/server.hpp"
 #include <algorithm>
 #include <string>
-#include <random>
-#include <sstream>
-#include <iomanip>
 #include <iostream>
 
 std::vector<Client> global_clients;
@@ -58,25 +55,9 @@ void handleAuthRequest(SocketType client_fd, const std::string& username) {
               << "' token=" << client->getToken() << " credits=" << client->getCredits() << "\n";
 
     // Build AUTH_RESPONSE
-    Message resp;
-    resp.type = MessageType::AUTH_RESPONSE;
-    resp.payload = client->getToken();
-
+    Message resp(MessageType::AUTH_RESPONSE, client->getToken());
     auto bytes = Protocol::serialize(resp);
     socket_send(client_fd, (const char*)bytes.data(), bytes.size());
-}
-
-std::string generateToken() {
-    std::random_device rd;
-    std::uniform_int_distribution<int> dist(0, 255);
-
-    std::ostringstream oss;
-    for (int i = 0; i < 32; i++) {   // 32 bytes = 256-bit token
-        int byte = dist(rd);
-        oss << std::hex << std::setw(2) << std::setfill('0') << byte;
-    }
-
-    return oss.str();
 }
 
 //====================================================
@@ -132,9 +113,7 @@ void handleChatSend(SocketType client_fd, const std::string& payload) {
               << " (new credits=" << client->getCredits() << ")\n";
 
     // Build the message to broadcast
-    Message outgoing;
-    outgoing.type = MessageType::CHAT_DELIVER;
-    outgoing.payload = client->getToken() + "|" + username + "|" + message;
+    Message outgoing(MessageType::CHAT_DELIVER, client->getToken() + "|" + username + "|" + message);
 
     broadcastMessage(outgoing);
 }
@@ -200,9 +179,7 @@ void handlePurchaseRequest(SocketType client_fd, const std::string& payload) {
     if (client->isThemeOwned(itemIndex)) {
         pthread_mutex_unlock(&global_clients_mutex);
 
-        Message resp;
-        resp.type = MessageType::PURCHASE_RESPONSE;
-        resp.payload = "NO|OWNED";
+        Message resp(MessageType::PURCHASE_RESPONSE, "NO|OWNED");
 
         auto data = Protocol::serialize(resp);
         socket_send(client_fd, (char*)data.data(), data.size());
@@ -213,9 +190,7 @@ void handlePurchaseRequest(SocketType client_fd, const std::string& payload) {
     if (client->getCredits() < price) {
         pthread_mutex_unlock(&global_clients_mutex);
 
-        Message resp;
-        resp.type = MessageType::PURCHASE_RESPONSE;
-        resp.payload = "NO|CREDITS";
+        Message resp(MessageType::PURCHASE_RESPONSE, "NO|CREDITS");
 
         auto data = Protocol::serialize(resp);
         socket_send(client_fd, (char*)data.data(), data.size());
@@ -234,9 +209,7 @@ void handlePurchaseRequest(SocketType client_fd, const std::string& payload) {
               << " new credits=" << newCredits << "\n";
 
     // SUCCESS PAYLOAD: YES|itemIndex|newCredits
-    Message resp;
-    resp.type = MessageType::PURCHASE_RESPONSE;
-    resp.payload = "YES|" + std::to_string(itemIndex) + "|" + std::to_string(newCredits);
+    Message resp(MessageType::PURCHASE_RESPONSE, "YES|" + std::to_string(itemIndex) + "|" + std::to_string(newCredits));
 
     auto data = Protocol::serialize(resp);
     socket_send(client_fd, (char*)data.data(), data.size());

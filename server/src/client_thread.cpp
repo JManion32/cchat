@@ -5,25 +5,25 @@
 
 // Handle update from client
 void handleMessage(SocketType client_fd, const Message& msg) {
-    switch (msg.type) {
+    switch (msg.getType()) {
 
         case MessageType::AUTH_REQUEST:
             std::cout << "[SERVER] -> AUTH_REQUEST" << std::endl;
-            handleAuthRequest(client_fd, msg.payload);
+            handleAuthRequest(client_fd, msg.getPayload());
             break;
 
         case MessageType::CHAT_SEND:
             std::cout << "[SERVER] -> CHAT_SEND" << std::endl;
-            handleChatSend(client_fd, msg.payload);
+            handleChatSend(client_fd, msg.getPayload());
             break;
 
         case MessageType::PURCHASE_REQUEST:
             std::cout << "[SERVER] -> PURCHASE_REQUEST" << std::endl;
-            handlePurchaseRequest(client_fd, msg.payload);
+            handlePurchaseRequest(client_fd, msg.getPayload());
             break;
 
         default:
-            std::cout << "[SERVER] Unknown MessageType: " << (int)msg.type << std::endl;
+            std::cout << "[SERVER] Unknown MessageType: " << (int)msg.getType() << std::endl;
             break;
     }
 }
@@ -37,7 +37,7 @@ void* client_thread(void* arg) {
 
     // Register client
     pthread_mutex_lock(&global_clients_mutex);
-    global_clients.push_back(Client(client_fd, "", "", 0));
+    global_clients.push_back(Client(client_fd, ""));
     pthread_mutex_unlock(&global_clients_mutex);
 
     std::vector<uint8_t> recv_buffer;
@@ -79,7 +79,7 @@ void* client_thread(void* arg) {
                 goto next_packet;
             }
             handleMessage(client_fd, msg);
-            std::cout << "[SERVER] Received message type: " << (int)msg.type << std::endl;
+            std::cout << "[SERVER] Received message type: " << (int)msg.getType() << std::endl;
 
         next_packet:
             recv_buffer.erase(recv_buffer.begin(), recv_buffer.begin() + full_packet);

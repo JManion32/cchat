@@ -11,6 +11,7 @@
 #endif
 
 enum class MessageType : uint8_t {
+    PLACEHOLDER = 24,
     AUTH_REQUEST = 0,
     AUTH_RESPONSE = 1,
     CHAT_SEND = 2,
@@ -19,7 +20,24 @@ enum class MessageType : uint8_t {
     PURCHASE_RESPONSE = 5,
 };
 
-struct Message {
+class Message {
+public:
+  // Constructors
+  Message() { setType(MessageType::PLACEHOLDER); setPayload(""); } 
+  Message(MessageType type, std::string payload) { setType(type); setPayload(payload); }
+
+  // Getters
+  MessageType getType() const { return type; }
+  std::string getPayload() const { return payload; }
+
+  // Setters
+  void setType(MessageType type) { this->type = type; }
+  void setPayload(std::string payload) { this->payload = payload; }
+
+  // Member Functions
+  void assignPayload(const char* a, size_t b) { payload.assign(a, b); }
+  void clearPayload() { payload.clear(); }
+private:
     MessageType type;
     std::string payload;
 };

@@ -1,12 +1,15 @@
 #include <vector>
 #include <string>
+#include <ctime>
+#include <iostream>
+#include <unistd.h>
 
 #include "../../shared/include/socket_handler.hpp"
 
 class Client {
 public:
     // Constructors
-    Client(SocketType sockfd, std::string name, std::string token, int credits);
+    Client(SocketType sockfd, std::string name);
 
     // Setters
     void setSockfd(SocketType sockfd) { this->sockfd = sockfd; }
@@ -32,4 +35,6 @@ private:
     std::string token;
     int credits = 0;
     std::vector<bool> owned_themes = std::vector<bool>(9, false);
+
+    std::string generateToken();
 };

@@ -95,16 +95,16 @@ void Client::processIncomingMessage(const Message& msg) {
     QMetaObject::invokeMethod(
         this,
         [this, msg]() {
-            switch (msg.type) {
+            switch (msg.getType()) {
                 case MessageType::AUTH_RESPONSE:
-                    this->token = QString::fromStdString(msg.payload);
+                    this->token = QString::fromStdString(msg.getPayload());
                     nameLabel->setText(username);
                     stack->setCurrentIndex(1);
                     break;
 
                 case MessageType::CHAT_DELIVER: {
                     // Payload format: token|username|message
-                    std::string p = msg.payload;
+                    std::string p = msg.getPayload();
                     size_t pos1 = p.find('|');
                     size_t pos2 = p.find('|', pos1 + 1);
 
@@ -134,7 +134,7 @@ void Client::processIncomingMessage(const Message& msg) {
                 }
 
                 case MessageType::PURCHASE_RESPONSE: {
-                    QString r = QString::fromStdString(msg.payload);
+                    QString r = QString::fromStdString(msg.getPayload());
 
                     if (r.startsWith("YES")) {
                         // Expected format: YES|<itemID>|<newCredits>
@@ -229,11 +229,8 @@ QWidget* Client::buildLoginScreen() {
         }
 
         // Build AUTH_REQUEST
-        Message authMsg;
-        authMsg.type = MessageType::AUTH_REQUEST;
-
         this->username = usernameInput->text();
-        authMsg.payload = username.toStdString();
+        Message authMsg(MessageType::AUTH_REQUEST, username.toStdString());
 
         auto data = Protocol::serialize(authMsg);
         socket_send(sockfd, (const char*)data.data(), data.size());
@@ -356,12 +353,7 @@ QWidget* Client::buildChatScreen() {
         if (text.isEmpty()) return;
 
         // Build chat packet
-        Message msg;
-        msg.type = MessageType::CHAT_SEND;
-        msg.payload =
-            token.toStdString() + "|" +
-            std::to_string(credit_count) + "|" +
-            text.toStdString();
+        Message msg(MessageType::CHAT_SEND, token.toStdString() + "|" + std::to_string(credit_count) + "|" + text.toStdString());
 
         // Serialize and send
         std::vector<uint8_t> data = Protocol::serialize(msg);
@@ -538,12 +530,7 @@ QWidget* Client::buildShopScreen() {
             }
 
             // Not owned, send purchase request
-            Message msg;
-            msg.type = MessageType::PURCHASE_REQUEST;
-            msg.payload =
-                token.toStdString() + "|" +
-                std::to_string(credit_count) + "|" +
-                std::to_string(themeId);
+            Message msg(MessageType::PURCHASE_REQUEST, token.toStdString() + "|" + std::to_string(credit_count) + "|" + std::to_string(themeId));
 
             auto data = Protocol::serialize(msg);
             socket_send(sockfd, (char*)data.data(), data.size());
