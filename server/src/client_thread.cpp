@@ -37,7 +37,7 @@ void* client_thread(void* arg) {
 
     // Register client
     pthread_mutex_lock(&global_clients_mutex);
-    global_clients.push_back(Client(client_fd, "", "", 1));
+    global_clients.push_back(Client(client_fd, "", "", 0));
     pthread_mutex_unlock(&global_clients_mutex);
 
     std::vector<uint8_t> recv_buffer;

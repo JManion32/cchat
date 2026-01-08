@@ -20,4 +20,4 @@ src/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f src/*.o ../shared/src/*.o ../bin/linux/server
+	rm -f src/*.o src/models/*.o ../shared/src/*.o ../bin/linux/server
