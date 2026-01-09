@@ -25,6 +25,7 @@
     border: 1px solid var(--standard-light-gray);
     border-radius: 1rem;
     overflow: hidden;
+    display: var(--shop-panel-display);
 }
 
 .shop-panel-container {
@@ -40,12 +41,20 @@
     padding: 0.25rem;
 }
 
+.shop-title {
+    font-weight: bold;
+    font-size: 1.40rem;
+    color: var(--standard-white);
+    margin: 0;
+    padding: 0;
+    margin: 0;
+}
+
 .token-count {
     font-weight: bold;
     font-size: 1.40rem;
     color: var(--standard-white);
     margin: 0;
     padding: 0;
-    align-self: center;
-    margin-left: auto;
+    margin: 0 0 0 auto;
 }

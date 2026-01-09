@@ -111,6 +111,10 @@ body {
   
 }
 
+.hide {
+  display: none !important;
+}
+
 hr {
     border: none;
     height: 1px;

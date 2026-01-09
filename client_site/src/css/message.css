@@ -59,4 +59,5 @@
     max-width: 80%;
     font-style: italic;
     color: var(--standard-dim-white);
+    margin: 0;
 }

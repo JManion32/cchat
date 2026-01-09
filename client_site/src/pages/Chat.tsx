@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import Message from '../components/Message.tsx';
-// import SystemMessage from '../components/SystemMessage.tsx';
+import SystemMessage from '../components/SystemMessage.tsx';
 import ShopPanel from '../components/ShopPanel.tsx';
 import type { ChatMessage } from '../types/ChatMessage.ts';
+import logo from '../assets/logo.svg';
 
 import '../css/chat.css';
 
 function Chat() {
-    const navigate = useNavigate();
     const containerRef = useRef<HTMLDivElement | null>(null);
 
     const [message, setMessage] = useState("");
@@ -34,14 +33,22 @@ function Chat() {
         setMessage("");
     }
 
+    function goToPortfolio() {
+        window.location.href = 'https://justinmanion.com/projects/securechatroom';
+    }
+
     return (
         <>
             <div className="chat-page-container">
                 <div className={`chat-content-container`}>
                     <div className="navbar-container">
-                        <p className="active-count">● 3</p>
+                        <div className="cchat-link-container" onClick={ () => goToPortfolio() }>
+                            <img src={logo} className="site-logo"/>
+                            <p className="site-name">CChat</p>
+                        </div>
+                        <p className="active-count"><span>Active: </span>3</p>
                         <button
-                            className="default-btn"
+                            className="default-btn shop-btn"
                         >
                             Shop (50)
                         </button>
@@ -56,6 +63,12 @@ function Chat() {
                                 sent={msg.sent}
                             />
                         ))}
+                        <Message
+                            name="George Washington"
+                            content="The unanimous Declaration of the thirteen united States of America, When in the Course of human events, it becomes necessary for one people to dissolve the political bands which have connected them with another, and to assume among the powers of the earth, the separate and equal station to which the Laws of Nature and of Nature's God entitle them, a decent respect to the opinions of mankind requires that they should declare the causes which impel them to the separation."
+                            sent={false}
+                        />
+                        <SystemMessage content="George Washington left the room"/>
                     </div>
                     <div className="input-container">
                         <input

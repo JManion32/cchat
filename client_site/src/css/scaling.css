@@ -1,0 +1,43 @@
+/* Mobile */
+@media (width <= 640px) {
+    :root {
+        --site-font-size: 12px;
+
+        --shop-btn-display: block;
+        --shop-panel-display: none;
+    }
+}
+
+/* Tablets */
+@media (width >= 641px) {
+    :root {
+        --site-font-size: 14px;
+
+        --shop-btn-display: block;
+        --shop-panel-display: none;
+    }
+}
+
+/* Small Laptops */
+@media (width >= 1024px) {
+    :root {
+        --site-font-size: 15px;
+
+        --shop-btn-display: none;
+        --shop-panel-display: block;
+    }
+}
+
+/* Desktop */
+@media (width >= 1280px) {
+    :root {
+        --site-font-size: 16px;
+    }
+}
+
+/* Big Desktops */
+@media (width >= 2560px) {
+    :root {
+        --site-font-size: 18px;
+    }
+}

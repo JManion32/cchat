@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 
 import './css/index.css'
 import './css/colors.css'
+import './css/scaling.css'
 
 import Login from './pages/Login.tsx'
 import Chat from './pages/Chat.tsx'
