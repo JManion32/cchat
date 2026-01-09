@@ -1,0 +1,103 @@
+/* ====================== */
+/* PAGE CONTAINER */
+/* ====================== */
+
+.chat-page-container {
+    min-height: 100vh;
+    min-width: 100vw;
+    background: #18181800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-content-container {
+  width: 98%;
+  height: 98vh;
+  padding: 1.5rem 2rem 1rem 2rem;
+
+  display: flex;
+  flex-direction: column;
+
+  background: #1f1f1f;
+  border: 1px solid var(--standard-light-gray);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+/* ====================== */
+/* NAVBAR */
+/* ====================== */
+
+.navbar-container {
+    padding: 0.25rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    align-items: flex-start;
+}
+
+.active-count {
+    font-weight: bold;
+    font-size: 1.40rem;
+    color: var(--light-green);
+    margin: 0;
+    padding: 0;
+    flex-grow: 1;
+    align-self: center;
+}
+
+.shop-btn {
+    font-weight: bold;
+    padding: 0.50rem 1.5rem;
+    font-size: 1.1rem;
+}
+
+.nav-chat-hr {
+    border: none;
+    height: 1px;
+    background-color: var(--standard-light-gray);
+    margin: 1rem 0;
+}
+
+/* ====================== */
+/* CHAT AREA */
+/* ====================== */
+
+.chat-container {
+    height: 90%;
+    flex-grow: 1;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* ====================== */
+/* INPUT AREA */
+/* ====================== */
+
+.input-container {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    align-items: center;
+}
+
+.chat-input {
+    border-radius: 0.75rem;
+    border: 2px solid var(--standard-light-gray);
+    font-size: 1.1rem;
+    padding: 0.5rem 1rem;
+    font-weight: bold;
+    flex-grow: 1;
+}
+
+.send-btn {
+    font-size: 2rem;
+    padding: 0.25rem 0.50rem 0.25rem 1rem;
+}
+
+.send-btn:hover {
+    cursor: pointer;
+}

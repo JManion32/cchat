@@ -1,0 +1,49 @@
+.message-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 70%;
+}
+
+.sent-message {
+    margin-left: auto;
+}
+
+.received-message {
+    margin-right: auto;
+}
+
+.message-bubble {
+    color: var(--standard-white);
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    font-size: 1rem;
+}
+
+.sent-bubble {
+    background: var(--standard-blue);
+}
+
+.received-bubble {
+    background: var(--lighter-gray);
+}
+
+.message-bubble-p {
+    margin: 0;
+    padding: 0;
+}
+
+.message-info {
+    display: flex;
+    flex-direction: row;
+    gap: 0.50rem;
+    color: var(--standard-dim-white);
+    font-size: 0.80rem;
+}
+
+.sent-info {
+    margin: 0.25rem 0.50rem 0 auto;
+}
+
+.received-info {
+    margin: 0.25rem auto 0 0.50rem;
+}

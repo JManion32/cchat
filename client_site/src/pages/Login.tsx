@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
-// @ts-ignore
-//import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import '../css/login.css';
 import '../css/colors.css';
@@ -9,7 +8,7 @@ import { badName } from '../utils/checkName.ts';
 import MatrixCanvas from '../components/MatrixCanvas.tsx';
 
 function Home() {
-    //const navigate = useNavigate();
+    const navigate = useNavigate();
     const [isBadName, setIsBadName] = useState(false);
 
     const [copied, setCopied] = useState(false);
@@ -34,6 +33,7 @@ function Home() {
             return;
         }
         setIsBadName(false);
+        navigate("/chat")
     }
 
     return (
