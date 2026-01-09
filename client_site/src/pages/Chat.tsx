@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Message from '../components/Message.tsx';
+import ShopModal from '../components/ShopModal.tsx';
 import SystemMessage from '../components/SystemMessage.tsx';
 import ShopPanel from '../components/ShopPanel.tsx';
 import type { ChatMessage } from '../types/ChatMessage.ts';
@@ -47,11 +48,9 @@ function Chat() {
                             <p className="site-name">CChat</p>
                         </div>
                         <p className="active-count"><span>Active: </span>3</p>
-                        <button
-                            className="default-btn shop-btn"
-                        >
-                            Shop (50)
-                        </button>
+                        <div className="shop-btn-container">
+                            <ShopModal/>
+                        </div>
                     </div>
                     <hr className="nav-chat-hr"/>
                     <div className="chat-message-container" ref={containerRef}>
@@ -91,7 +90,9 @@ function Chat() {
                         </a>
                     </div>
                 </div>
-                <ShopPanel page={false}/>
+                <div className="shop-panel-container">
+                    <ShopPanel/>
+                </div>
             </div>
         </>
     );

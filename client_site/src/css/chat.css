@@ -15,7 +15,7 @@
 }
 
 .chat-content-container {
-    margin: 1rem;
+    margin: 1rem 0.5rem 1rem 1rem;
     height: 96vh;
     flex-grow: 1;
     padding: 1.5rem 2rem 1rem 2rem;
@@ -75,9 +75,12 @@
     color: var(--standard-white);
 }
 
+.shop-btn-container {
+    display: var(--shop-btn-display);
+}
+
 .shop-btn {
     margin-left: 2rem;
-    display: var(--shop-btn-display);
 }
 
 /* ====================== */

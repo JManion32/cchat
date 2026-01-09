@@ -5,6 +5,9 @@
 
         --shop-btn-display: block;
         --shop-panel-display: none;
+
+        --modal-height: 42rem;
+        --modal-width: 28rem;
     }
 }
 
@@ -15,6 +18,9 @@
 
         --shop-btn-display: block;
         --shop-panel-display: none;
+
+        --modal-height: 55rem;
+        --modal-width: 45rem;
     }
 }
 

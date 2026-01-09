@@ -1,0 +1,58 @@
+.modal-container {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 100;
+}
+
+.modal {
+    position: absolute;
+    height: var(--modal-height);
+    width: var(--modal-width);
+    background: var(--secondary-bg);
+    color: var(--standard-white);
+
+    border-radius: 1rem;
+    padding: 3rem;
+}
+
+.modal-hidden {
+    display: none;
+}
+
+@keyframes slide-up {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.slide-up {
+    animation: slide-up 0.4s ease-out;
+}
+
+@keyframes slide-down {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+}
+
+.slide-down {
+    animation: slide-down 0.3s ease-in forwards;
+}
