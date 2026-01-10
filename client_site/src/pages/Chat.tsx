@@ -25,7 +25,7 @@ function Chat() {
         if (message.trim() === "") return;
 
         const newMessage = {
-            name: "justin",
+            name: "",
             content: message,
             sent: true,
         };
@@ -47,7 +47,9 @@ function Chat() {
                             <img src={logo} className="site-logo"/>
                             <p className="site-name">CChat</p>
                         </div>
-                        <p className="active-count"><span>Active: </span>3</p>
+                        <button className="active-count count">
+                            ● 3
+                        </button>
                         <div className="shop-btn-container">
                             <ShopModal/>
                         </div>
