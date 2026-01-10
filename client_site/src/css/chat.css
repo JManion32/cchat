@@ -15,7 +15,7 @@
 }
 
 .chat-content-container {
-    margin: 1rem 0.5rem 1rem 1rem;
+    margin: 1rem;
     height: 96vh;
     flex-grow: 1;
     padding: 1.5rem 2rem 1rem 2rem;
@@ -33,13 +33,13 @@
 .shop-panel-container {
     border: 2px solid var(--light-green);
     border-radius: 16px;
-    background: #1f1f1f;
+    background: #009a2210;
     height: 96vh;
-    width: 36rem;
+    width: var(--shop-panel-width);
     flex: none;
-    margin: 1rem 1rem 1rem 0.5rem;
+    margin: 1rem 1rem 1rem 0;
     display: var(--shop-panel-display);
-    overflow: hidden;
+    overflow: auto;
 }
 
 /* ====================== */

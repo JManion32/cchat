@@ -6,7 +6,7 @@
         --shop-btn-display: block;
         --shop-panel-display: none;
 
-        --modal-height: 42rem;
+        --modal-height: 44rem;
         --modal-width: 28rem;
     }
 }
@@ -29,8 +29,8 @@
     :root {
         --site-font-size: 15px;
 
-        --shop-btn-display: none;
-        --shop-panel-display: block;
+        --shop-btn-display: block;
+        --shop-panel-display: none;
     }
 }
 
@@ -38,6 +38,22 @@
 @media (width >= 1280px) {
     :root {
         --site-font-size: 16px;
+
+        --shop-btn-display: none;
+        --shop-panel-display: block;
+        --shop-panel-width: 32rem;
+    }
+}
+
+/* Desktop */
+@media (width >= 1524px) {
+    :root {
+        --site-font-size: 16px;
+
+        --shop-btn-display: none;
+        --shop-panel-display: block;
+
+        --shop-panel-width: 36rem;
     }
 }
 

@@ -41,7 +41,7 @@ function ShopPanel() {
                         <span className="nav-category-divider">{' | '}</span>
                         <a className={`nav-category ${isBanner ? 'nav-category-toggled' : ''}`}  onClick={ () => setCategory("banner") }>Banners</a>
                     </div>
-                    <button className="credit-count count">Credits: 50</button>
+                    <button className="credit-count count">50</button>
                 </div>
                 <hr className="nav-divider"/>
                 <div className={`center-theme ${isTheme ? '' : 'hide'}`}>
@@ -58,6 +58,9 @@ function ShopPanel() {
                         <img src={Soccer}/>
                         <img src={Voltage}/>
                         <img src={Warm}/>
+                    </div>
+                    <div className="coming-soon">
+                        Work in progress, full implementation coming soon!
                     </div>
                 </div>
                 <div className={`banner-container ${isBanner ? '' : 'hide'}`}>

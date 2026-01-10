@@ -128,4 +128,5 @@ hr {
     padding: 0.5rem 1rem;
     margin-left: auto;
     border: 1px solid var(--standard-light-gray);
+    cursor: default;
 }
