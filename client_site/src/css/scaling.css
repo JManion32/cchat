@@ -3,6 +3,8 @@
     :root {
         --site-font-size: 12px;
 
+        --site-title-size: 5rem;
+
         --shop-btn-display: block;
         --shop-panel-display: none;
 
@@ -16,6 +18,8 @@
     :root {
         --site-font-size: 14px;
 
+        --site-title-size: 6rem;
+
         --shop-btn-display: block;
         --shop-panel-display: none;
 
@@ -28,6 +32,8 @@
 @media (width >= 1024px) {
     :root {
         --site-font-size: 15px;
+
+        --site-title-size: 7.5rem;
 
         --shop-btn-display: block;
         --shop-panel-display: none;

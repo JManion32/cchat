@@ -13,15 +13,8 @@
     z-index: 1;
 }
 
-.home-footer-container {
-    margin: auto 0 1.5rem;
-    display: flex;
-    gap: 1.5rem;
-    z-index: 1;
-}
-
 .site-title {
-    font-size: 7.5rem;
+    font-size: var(--site-title-size);
     margin: 0;
     color: var(--light-green);
 }
@@ -87,6 +80,13 @@
     margin-top: 1rem;
     display: flex;
     flex-direction: column;
+}
+
+.home-footer-container {
+    margin: auto 0 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+    z-index: 1;
 }
 
 .footer-link {
