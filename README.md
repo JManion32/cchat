@@ -1,4 +1,4 @@
-## Secure Chatroom App in C++
+## CChat
 Tested on Ubuntu 24.04
 
 ### Cloning the Repository
