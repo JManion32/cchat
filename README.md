@@ -1,6 +1,11 @@
 ## Secure Chatroom App in C++
 Tested on Ubuntu 24.04
 
+### Cloning the Repository
+```
+git clone https://github.com/JManion32/cchat.git
+```
+
 ### Running on Linux
 Make the client GUI and server:
 ```
