@@ -6,7 +6,15 @@ Tested on Ubuntu 24.04
 git clone https://github.com/JManion32/cchat.git
 ```
 
-### Running on Linux
+## Running Locally
+
+### React Website Client
+```
+cd client_site
+npm run dev
+```
+
+### Server and Native on Linux
 Make the client GUI and server:
 ```
 make
@@ -19,15 +27,13 @@ make clean
 
 Make the client GUI only:
 ```
-cd client
 make -C client_gui
 ```
 
 Make the server only:
 ```
-cd server
 make -C server
 ```
 
 ### Running on Windows
-Does not currently work, will revisit in the future.
+Only the React website client can be ran on Windows. The server and native GUI use Linux-specific socket and threading libraries.
