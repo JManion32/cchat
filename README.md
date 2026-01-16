@@ -36,4 +36,4 @@ make -C server
 ```
 
 ### Running on Windows
-Only the React website client can be ran on Windows. The server and native GUI use Linux-specific socket and threading libraries.
+Only the React website client is supported on Windows. The server and native GUI use Linux-specific socket and threading libraries.

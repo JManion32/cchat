@@ -18,3 +18,4 @@ bin/windows/*
 !server/include/.gitkeep
 
 node_modules
+.env

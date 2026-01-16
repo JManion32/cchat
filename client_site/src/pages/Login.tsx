@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import GatewayWS from "../services/gatewayWS";
 
 import '../css/login.css';
 import '../css/colors.css';
@@ -8,7 +9,7 @@ import { badName } from '../utils/checkName.ts';
 import MatrixCanvas from '../components/MatrixCanvas.tsx';
 
 type LoginProps = {
-    gateway: React.MutableRefObject<any>;
+    gateway: GatewayWS;
     success: boolean | null;
     chosen_name: string;
 };
@@ -41,7 +42,7 @@ function Login({ gateway, success, chosen_name }: LoginProps) {
 
         setBadNameMessage('');
 
-        gateway.current?.send({
+        gateway.send({
             type: "auth.request",
             payload: { name }
         });

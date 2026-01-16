@@ -1,3 +1,4 @@
+// services/gatewayWS.ts
 import type { BaseMessage } from "../types/protocol";
 
 type MessageHandler = (msg: BaseMessage) => void;

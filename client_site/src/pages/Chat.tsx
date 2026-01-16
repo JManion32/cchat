@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import GatewayWS from "../services/gatewayWS";
+
 import Message from '../components/Message.tsx';
 import ShopModal from '../components/ShopModal.tsx';
 import ShopPanel from '../components/ShopPanel.tsx';
@@ -9,7 +11,7 @@ import '../css/chat.css';
 
 type ChatProps = {
     messages: ChatMessage[];
-    gateway: React.MutableRefObject<any>;
+    gateway: GatewayWS;
     user: string;
     token: string;
     activeCount: number;
@@ -29,7 +31,7 @@ function Chat({ messages, gateway, user, token, activeCount }: ChatProps) {
     function sendMessage() {
         if (message.trim() === "") return;
 
-        gateway.current?.send({
+        gateway.send({
             type: "chat.request",
             payload: {
                 content: message,
