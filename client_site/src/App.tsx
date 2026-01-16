@@ -9,7 +9,7 @@ import GatewayWS from "./services/gatewayWS";
 export default function App() {
     const [messages, setMessages] = useState<any[]>([]);
     const wsRef = useRef<GatewayWS | null>(null);
-    const [success, setSuccess] = useState<string>('');
+    const [success, setSuccess] = useState<boolean | null>(null);
     const [user, setUser] = useState<string>('');
     const [token, setToken] = useState<string>('');
     const [activeCount, setActiveCount] = useState(0);
@@ -22,9 +22,9 @@ export default function App() {
         wsRef.current.onMessage = (msg) => {
             switch (msg.type) {
                 case "auth.response":
-                    setSuccess(msg.payload.success as string);
-                    setUser(msg.payload.name as string);
-                    setToken(msg.payload.token as string);
+                    setSuccess(msg.payload.success);
+                    setUser(msg.payload.name);
+                    setToken(msg.payload.token);
                     break;
                 case "chat.response":
                     if (typeof msg.payload.activeCount === "number") {

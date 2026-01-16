@@ -1,5 +1,5 @@
 export type ChatMessage = {
-    server: string;
+    server: boolean;
     name: string;
     content: string;
 };

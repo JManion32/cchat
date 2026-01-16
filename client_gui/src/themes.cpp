@@ -59,6 +59,7 @@ const QString MAIN_QSS = R"(
 }
 
 #theme-shop-button {
+    margin-left: 10px;
     padding: 8px 12px;
     border-radius: 6px;
 }
@@ -72,8 +73,12 @@ const QString MAIN_QSS = R"(
     padding: 10px;
 }
 
-#message-self, #message-other {
+#message-self, #message-other, #message-server {
     font-size: 15px;
+}
+
+#message-server {
+    font-style: italic;
 }
 
 #message-meta-self, #message-meta-other {
@@ -195,6 +200,10 @@ const QString THEME_DARK = R"(
 
 #message-other {
     color: #ffffff;
+}
+
+#message-server {
+    color: #cccccc;
 }
 
 #message-meta-self, #message-meta-other {

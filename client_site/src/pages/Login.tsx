@@ -9,14 +9,13 @@ import MatrixCanvas from '../components/MatrixCanvas.tsx';
 
 type LoginProps = {
     gateway: React.MutableRefObject<any>;
-    success: string;
+    success: boolean | null;
     chosen_name: string;
 };
 
 function Login({ gateway, success, chosen_name }: LoginProps) {
     const navigate = useNavigate();
     const [badNameMessage, setBadNameMessage] = useState('');
-    const [joinAttempt, setJoinAttempt] = useState(0);
 
     const [copied, setCopied] = useState(false);
     const handleCopy = () => {
@@ -42,8 +41,6 @@ function Login({ gateway, success, chosen_name }: LoginProps) {
 
         setBadNameMessage('');
 
-        setJoinAttempt(a => a + 1);
-
         gateway.current?.send({
             type: "auth.request",
             payload: { name }
@@ -52,18 +49,15 @@ function Login({ gateway, success, chosen_name }: LoginProps) {
 
 
     useEffect(() => {
-        if (joinAttempt === 0) return;
+        if (success === null) return;
 
-        if (success === "false") {
+        if (success) {
+            navigate("/chat");
+        } else {
             setBadNameMessage(`The username ${chosen_name} is taken.`);
             setName('');
         }
-
-        if (success === "true") {
-            navigate("/chat");
-        }
-    }, [success, joinAttempt]);
-
+    }, [success]);
 
     return (
         <>

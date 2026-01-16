@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Message from '../components/Message.tsx';
 import ShopModal from '../components/ShopModal.tsx';
-// import SystemMessage from '../components/SystemMessage.tsx';
 import ShopPanel from '../components/ShopPanel.tsx';
 import type { ChatMessage } from '../types/ChatMessage.ts';
 import logo from '../assets/logo.svg';

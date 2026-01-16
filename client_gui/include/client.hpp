@@ -48,6 +48,7 @@ private:
     QString username;
     QString token;
     int credit_count = 0;
+    int active_count = 0;
     std::vector<bool> ownedThemes = std::vector<bool>(9, false);
 
 
@@ -55,7 +56,7 @@ private:
     QWidget* buildLoginScreen();
     QWidget* buildChatScreen();
     QWidget* buildShopScreen();
-    void addMessage(const QString& user, const QString& text, bool fromSelf);
+    void addMessage(const QString& user, const QString& text, std::string chat_type);
     void applyTheme(const QString& themePath);
 
     QWidget* loginScreen;
@@ -64,6 +65,7 @@ private:
 
     // These are the elements that change dynamically
     QLabel* nameLabel;
+    QLabel* activeLabel;
     QPushButton* shopButton;
     QLabel* creditLabel;
     std::vector<QPushButton*> themeButtons;

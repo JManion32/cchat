@@ -70,7 +70,7 @@ void removeClient(SocketType sock) {
     json response = {
         {"type", "chat.response"},
         {"payload", {
-            {"server", "true"},
+            {"server", true},
             {"name", name},
             {"content", name_msg},
             {"activeCount", getActiveCount()}
@@ -114,7 +114,7 @@ void handleAuthRequest(SocketType client_fd, const json& payload) {
             json response = {
                 {"type", "auth.response"},
                 {"payload", {
-                    {"success", "false"},
+                    {"success", false},
                     {"name", payload["name"]},
                     {"token", ""}
                 }}
@@ -135,7 +135,7 @@ void handleAuthRequest(SocketType client_fd, const json& payload) {
     json chat_response = {
         {"type", "chat.response"},
         {"payload", {
-            {"server", "true"},
+            {"server", true},
             {"name", payload["name"]},
             {"content", name_msg},
             {"activeCount", getActiveCount()}
@@ -148,7 +148,7 @@ void handleAuthRequest(SocketType client_fd, const json& payload) {
     json auth_response = {
         {"type", "auth.response"},
         {"payload", {
-            {"success", "true"},
+            {"success", true},
             {"name", client->getName()},
             {"token", client->getToken()}
             /*{"credits", client->getCredits()}*/
@@ -201,7 +201,7 @@ void handleChatRequest(SocketType client_fd, const json& payload) {
     json response = {
         {"type", "chat.response"},
         {"payload", {
-            {"server", "false"},
+            {"server", false},
             {"name", client->getName()},
             {"content", payload["content"]}
         }}

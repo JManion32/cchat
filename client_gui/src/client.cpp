@@ -105,7 +105,7 @@ void Client::processIncomingMessage(const json& msg) {
         this,
         [this, msg]() {
             // AUTH RESPONSE
-            if (msg["type"] == "auth.response") {
+            if (msg["type"] == "auth.response" && msg["payload"]["success"]) {
                 std::string token = msg["payload"].value("token", "");
                 this->token = QString::fromStdString(token);
                 nameLabel->setText(username);
@@ -113,7 +113,9 @@ void Client::processIncomingMessage(const json& msg) {
             }
             // CHAT RESPONSE
             else if (msg["type"] == "chat.response") {
-                bool fromSelf = (username == QString::fromStdString(msg["payload"].value("name", "")));
+
+                // Initialize to someone else sending
+                std::string chat_type = "other";
 
                 std::string user = msg["payload"].value("name", "");
                 std::string text = msg["payload"].value("content", "");
@@ -121,15 +123,24 @@ void Client::processIncomingMessage(const json& msg) {
                 QString qUser = QString::fromStdString(user);
                 QString qMsg  = QString::fromStdString(text);
 
-                if (fromSelf) {
+                // From server
+                if (msg["payload"]["server"]) {
+                    chat_type = "server";
+                    active_count = msg["payload"]["activeCount"];
+                    activeLabel->setText("Active: " + QString::number(active_count));
+                }
+
+                // From Self
+                else if (username == QString::fromStdString(msg["payload"].value("name", ""))) {
                     credit_count += 1;
                     shopButton->setText("Theme Shop (" + QString::number(credit_count) + ")");
                     if (creditLabel) {
                         creditLabel->setText("Credits: " + QString::number(credit_count));
                     }
+                    chat_type = "self";
                 }
 
-                addMessage(qUser, qMsg, fromSelf);
+                addMessage(qUser, qMsg, chat_type);
             }
             // PURCHASE RESPONSE
             else if (msg["type"] == "purchase.response") {
@@ -269,6 +280,11 @@ QWidget* Client::buildChatScreen() {
     header->addWidget(nameLabel);
 
     header->addStretch(1);
+
+    // ACTIVE USERS BUTTON
+    activeLabel = new QLabel();
+    activeLabel->setObjectName("chat-username");
+    header->addWidget(activeLabel);
 
     // SHOP BUTTON
     shopButton = new QPushButton("Theme Shop (" + QString::number(credit_count) + ")");
@@ -536,14 +552,28 @@ QWidget* Client::buildShopScreen() {
 }
 
 // Add a message to the chat area
-void Client::addMessage(const QString& user, const QString& text, bool fromSelf) {
+void Client::addMessage(const QString& user, const QString& text, std::string chat_type) {
     // 1. MESSAGE BUBBLE (only contains the actual text)
     QLabel* msg = new QLabel(text);
     msg->setWordWrap(true);
-    msg->setObjectName(fromSelf ? "message-self" : "message-other");
+    if (chat_type == "self") {
+        msg->setObjectName("message-self");
+    }
+    else if (chat_type == "other") {
+        msg->setObjectName("message-other");
+    }
+    else {
+        msg->setObjectName("message-server");
+        msg->setAlignment(Qt::AlignCenter);
+    }
 
     QWidget* bubble = new QWidget();
-    bubble->setObjectName(fromSelf ? "bubble-self" : "bubble-other");
+    if (chat_type == "self") {
+        bubble->setObjectName("bubble-self");
+    }
+    else if (chat_type == "other") {
+        bubble->setObjectName("bubble-other");
+    }
 
     int bubbleWidth = static_cast<int>(scroll->viewport()->width() * 0.75);
     bubble->setFixedWidth(bubbleWidth);
@@ -552,15 +582,32 @@ void Client::addMessage(const QString& user, const QString& text, bool fromSelf)
     bubbleLayout->setContentsMargins(12, 8, 12, 8);
     bubbleLayout->addWidget(msg);
 
+    QString sender_name = "";
+
     // 2. METADATA ROW (UNDER the bubble)
-    QString senderName = fromSelf ? "You" : user;  
+    if (chat_type == "self") {
+        sender_name = "You";
+    }
+    else if (chat_type == "other") {
+        sender_name = user;
+    } 
     QString timestamp  = QDateTime::currentDateTime().toString("hh:mm AP");
 
-    QLabel* meta = new QLabel(senderName + " • " + timestamp);
-    meta->setObjectName(fromSelf ? "message-meta-self" : "message-meta-other");
+    QLabel* meta = new QLabel(sender_name + " • " + timestamp);
+    if (chat_type == "self") {
+        meta->setObjectName("message-meta-self");
+    }
+    else if (chat_type == "other") {
+        meta->setObjectName("message-meta-other");
+    }
     meta->setWordWrap(false);
 
-    meta->setAlignment(fromSelf ? Qt::AlignRight : Qt::AlignLeft);
+    if (chat_type == "self") {
+        meta->setAlignment(Qt::AlignRight);
+    }
+    else if (chat_type == "other") {
+        meta->setAlignment(Qt::AlignLeft);
+    }
 
     // 3. ROW FOR ALIGNMENT (bubble + metadata vertically)
     QWidget* msgBlock = new QWidget();
@@ -576,12 +623,16 @@ void Client::addMessage(const QString& user, const QString& text, bool fromSelf)
     QHBoxLayout* rowLayout = new QHBoxLayout(row);
     rowLayout->setContentsMargins(0, 0, 0, 0);
 
-    if (fromSelf) {
+    if (chat_type == "self") {
         rowLayout->addStretch(1);
         rowLayout->addWidget(msgBlock);
-    } else {
+    }
+    else if (chat_type == "other") {
         rowLayout->addWidget(msgBlock);
         rowLayout->addStretch(1);
+    }
+    else {
+        rowLayout->addWidget(msg);
     }
 
     messageList->addWidget(row);
