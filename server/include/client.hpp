@@ -4,7 +4,7 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "../../shared/include/socket_handler.hpp"
+#include "./socket_handler.hpp"
 
 class Client {
 public:
@@ -30,12 +30,12 @@ public:
     void incrementCredits() { credits++; }
     void subtractPrice(int price) { credits = credits - price; }
 
+    std::string generateRandomToken();
+
 private:
     SocketType sockfd;
     std::string name;
     std::string token;
     int credits = 0;
     std::vector<bool> owned_themes = std::vector<bool>(9, false);
-
-    std::string generateRandomToken();
 };

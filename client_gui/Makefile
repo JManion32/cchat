@@ -18,7 +18,7 @@ OBJ = \
     ../shared/src/socket_handler.o \
     ../shared/src/thread_handler.o
 
-../bin/linux/client: $(OBJ)
+../bin/client: $(OBJ)
 	$(CXX) $(OBJ) -o $@ $(LDFLAGS)
 
 src/%.o: src/%.cpp
@@ -28,4 +28,4 @@ src/%.o: src/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f src/*.o ../shared/src/*.o ../bin/linux/client
+	rm -f src/*.o ../shared/src/*.o ../bin/client

@@ -1,4 +1,4 @@
-#include "../../include/models/client.hpp"
+#include "../include/client.hpp"
 
 Client::Client(SocketType sockfd, std::string name, std::string token) {
     this->sockfd = sockfd;

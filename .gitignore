@@ -7,15 +7,8 @@ moc_*.cpp
 # Build directories
 build/
 
-# Ignore all compiled binaries inside bin/<os>
-bin/linux/*
-bin/windows/*
-
-# But keep the folders themselves
-!bin/linux/.gitkeep
-!bin/windows/.gitkeep
-
-!server/include/.gitkeep
+# Save bin
+!bin/.gitkeep
 
 node_modules
 .env

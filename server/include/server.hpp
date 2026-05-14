@@ -2,8 +2,7 @@
 #include <vector>
 #include <string>
 
-#include "./models/client.hpp"
-
+#include "./client.hpp"
 #include "../../shared/include/socket_handler.hpp"
 #include "../../shared/include/thread_handler.hpp"
 
