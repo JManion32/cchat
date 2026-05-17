@@ -1,45 +1,28 @@
-#include "../../shared/include/socket_handler.hpp"
-#include "../../shared/include/thread_handler.hpp"
-#include "../include/client_thread.hpp"
-#include <iostream>
-
-static const int SERVER_PORT = 5000;
+#include "../include/server.hpp"
 
 int main() {
-    std::cout << "[SERVER] Starting server..." << std::endl;
-
-    SocketType server_fd = socket_create();
-    if (server_fd < 0) {
-        std::cerr << "[SERVER] socket_create() failed" << std::endl;
-        return -1;
-    }
-
-    if (!socket_bind(server_fd, SERVER_PORT)) {
-        std::cerr << "[SERVER] socket_bind() failed" << std::endl;
-        return -1;
-    }
-
-    if (!socket_listen(server_fd)) {
-        std::cerr << "[SERVER] socket_listen() failed" << std::endl;
-        return -1;
-    }
-
-    std::cout << "[SERVER] Listening on port " << SERVER_PORT << "..." << std::endl;
-
-    // Socket accept loop
-    while (true) {
-        SocketType client_fd = socket_accept(server_fd);
-        if (client_fd < 0) {
-            std::cerr << "[SERVER] socket_accept() failed" << std::endl;
-            continue;
-        }
-
-        std::cout << "[SERVER] Client connected!" << std::endl;
-        SocketType* fd_copy = new SocketType(client_fd);
-        ThreadType t = thread_create(client_thread, fd_copy);
-        thread_detach(t);
-    }
-
-    socket_close(server_fd);
+    Server server;
     return 0;
 }
+
+/*
+
+THE TO-DO LIST
+x 1. Implement C++ mutexes instead of pthreads for global array and client functions [OPTIONAL]
+x 2. Add default parameters to broadcast to allow for conditional messaging.
+Functions should call this with a json and, if necessary, the sock_fd of the client they wish not to send to.
+x 3. Complete the AuthHandler implementation
+x 4. Complete the ChatHandler implementation
+5. Complete the ShopHandler implementation
+6. Project runs with standard Makefiles
+7. Add CMakeLists.txt (WITHOUT CHAT) and learn how to run it with a nested structure
+
+NOTES:
+- GET IT RUNNING!!! We can examine absolute best practices later
+- shared_ptrs seem to be helpful
+- CLI implementation would be amazing
+- CMake now, then best practices, then new features
+
+LET'S GRADUATE TOMORROW!!!
+
+*/

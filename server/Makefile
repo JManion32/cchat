@@ -3,11 +3,12 @@ CXXFLAGS = -std=c++17 -Wall -Iinclude -I../shared
 
 OBJ = \
     src/main.o \
-    src/client_thread.o \
     src/server.o \
     src/client.o \
-    ../shared/src/socket_handler.o \
-    ../shared/src/thread_handler.o
+    src/auth_handler.o \
+    src/chat_handler.o \
+    src/shop_handler.o \
+    ../shared/src/socket_handler.o
 
 ../bin/server: $(OBJ)
 	$(CXX) $(OBJ) -o ../bin/server -pthread

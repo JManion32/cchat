@@ -1,6 +1,5 @@
 // services/gateway.ts
 import GatewayWS from "./gatewayWS";
 
-export const gateway = new GatewayWS(
-    import.meta.env.VITE_GATEWAY_URL
-);
+const gatewayUrl = import.meta.env.VITE_GATEWAY_URL || "ws://localhost:8080";
+export const gateway = new GatewayWS(gatewayUrl);

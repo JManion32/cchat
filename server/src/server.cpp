@@ -1,68 +1,139 @@
 #include "../include/server.hpp"
-#include <algorithm>
-#include <string>
-#include <iostream>
 
-std::vector<Client> global_clients;
-pthread_mutex_t global_clients_mutex = PTHREAD_MUTEX_INITIALIZER;
+Server::Server() : auth_handler(), chat_handler(), shop_handler() {
+    std::cout << "[SERVER] Starting server..." << std::endl;
 
-int getActiveCount() {
-    pthread_mutex_lock(&global_clients_mutex);
-    int count = 0;
-    for (const auto& c : global_clients) {
-        if (!c.getToken().empty()) {
-            count++;
-        }
-    }
-    pthread_mutex_unlock(&global_clients_mutex);
-    return count;
-}
-
-// Send message to all connected clients
-void broadcastMessage(const json& response) {
-    std::vector<SocketType> sockets;
-
-    pthread_mutex_lock(&global_clients_mutex);
-    for (const auto& c : global_clients) {
-        if (c.getToken() != "") {
-            sockets.push_back(c.getSockfd());
-        }
-    }
-    pthread_mutex_unlock(&global_clients_mutex);
-
-    std::string out = response.dump();
-    for (SocketType sock : sockets) {
-        sendFrame(sock, out);
-    }
-}
-
-// When a client disconnects
-void removeClient(SocketType sock) {
-    std::string name;
-    bool wasAuthorized = false;
-
-    pthread_mutex_lock(&global_clients_mutex);
-
-    auto it = std::find_if(
-        global_clients.begin(),
-        global_clients.end(),
-        [sock](const Client& c) {
-            return c.getSockfd() == sock;
-        }
-    );
-
-    if (it == global_clients.end()) {
-        pthread_mutex_unlock(&global_clients_mutex);
+    SocketType server_fd = socket_create();
+    if (server_fd < 0) {
+        std::cerr << "[SERVER] socket_create() failed" << std::endl;
         return;
     }
 
-    wasAuthorized = !it->getToken().empty();
-    name = it->getName();
+    if (!socket_bind(server_fd, SERVER_PORT)) {
+        std::cerr << "[SERVER] socket_bind() failed" << std::endl;
+        return;
+    }
+
+    if (!socket_listen(server_fd)) {
+        std::cerr << "[SERVER] socket_listen() failed" << std::endl;
+        return;
+    }
+
+    std::cout << "[SERVER] Listening on port " << SERVER_PORT << "..." << std::endl;
+
+    // Socket accept loop
+    while (true) {
+        SocketType client_fd = socket_accept(server_fd);
+        if (client_fd < 0) {
+            std::cerr << "[SERVER] socket_accept() failed" << std::endl;
+            continue;
+        }
+
+        std::cout << "[SERVER] Client connected!" << std::endl;
+        SocketType* fd_copy = new SocketType(client_fd);
+        ThreadType t = thread_create(&Server::addClient, this, fd_copy);
+        thread_detach(t);
+    }
+
+    socket_close(server_fd);
+}
+
+void Server::handleEvent(SocketType client_fd, const json& msg) {
+    std::shared_ptr<Client> client;
+    
+    {
+        std::lock_guard<std::mutex> lock(global_clients_mutex);
+        client = getClientByFD(client_fd);
+        if (!client) {
+            std::cerr << "[AUTH] ERROR: Client not found" << std::endl;
+            return;
+        }
+
+        // If Auth, verify the client doesn't already exist
+        if (msg["type"] == "auth.request") {
+            if (!msg["payload"].contains("name") || !msg["payload"]["name"].is_string()) {
+                std::cerr << "[AUTH] ERROR: missing name in payload" << std::endl;
+                return;
+            }
+            const std::string req_name = msg["payload"]["name"];
+            for (std::vector<std::shared_ptr<Client> >::size_type i=0; i<global_clients.size(); i++) {
+                if (global_clients[i]->getName() == req_name) {
+                    std::cout << global_clients[i]->getName() << " === " << req_name << std::endl;
+                    std::cerr << "[AUTH] ERROR: Client name already used" << std::endl;
+                    json response = {
+                        {"type", "auth.response"},
+                        {"payload", {
+                            {"success", false},
+                            {"name", req_name},
+                            {"token", ""}
+                        }}
+                    };
+                    std::string out = response.dump();
+                    sendDirectMsg(client_fd, out);
+                    return;
+                }
+            }
+        }
+    }  // Release lock before calling handlers
+
+    std::cout << "[SERVER] Received message type: " << msg["type"] << std::endl;
+    if (msg["type"] == "auth.request") {
+        json response = auth_handler.handleAuthRequest(client, msg["payload"]);
+        broadcastMessage(response);
+    }
+    else if (msg["type"] == "chat.request") {
+        json response = chat_handler.handleChatRequest(client, msg["payload"]);
+        if (!response.is_null() && response.contains("type")) {
+            broadcastMessage(response);
+        } else {
+            std::cerr << "[SERVER] chat.request rejected or malformed response" << std::endl;
+        }
+    }
+    else if (msg["type"] == "purchase.request") {
+        shop_handler.handlePurchaseRequest(client, msg["payload"]);
+        //broadcastMessage(response);
+    }
+    else {
+        std::cout << "[SERVER] Unknown MessageType: " << msg["type"] << std::endl;
+    }
+}
+
+void* Server::addClient(void* arg) {
+    SocketType client_fd = *(SocketType*)arg;
+    delete (SocketType*)arg;
+
+    std::cout << "[SERVER] Client thread started" << std::endl;
+
+    // Register client (use member mutex, and store shared_ptr to avoid pointer invalidation)
+    {
+        std::lock_guard<std::mutex> lock(global_clients_mutex);
+        global_clients.push_back(std::make_shared<Client>(client_fd, "", ""));
+    }
+
+    clientThread(client_fd);
+
+    return nullptr;
+}
+
+void Server::removeClient(SocketType sock) {
+    std::string name;
+    bool was_authorized = false;
+
+    std::lock_guard<std::mutex> lock(global_clients_mutex);
+
+    auto it = std::find_if(global_clients.begin(), global_clients.end(), [sock](const std::shared_ptr<Client>& c) {
+        return c->getSockfd() == sock;
+    });
+
+    if (it == global_clients.end()) {
+        return;
+    }
+
+    was_authorized = !(*it)->getToken().empty();
+    name = (*it)->getName();
     global_clients.erase(it);
 
-    pthread_mutex_unlock(&global_clients_mutex);
-
-    if (!wasAuthorized) {
+    if (!was_authorized) {
         return;
     }
 
@@ -79,237 +150,107 @@ void removeClient(SocketType sock) {
     broadcastMessage(response);
 }
 
-Client* getClientByFD(SocketType fd) {
+void Server::clientThread(SocketType client_fd) {
+
+    std::vector<uint8_t> recv_buffer;
+    recv_buffer.reserve(2048);
+    uint8_t temp[1024];
+
+    while (true) {
+        int bytes = socket_recv(client_fd, reinterpret_cast<char*>(temp), sizeof(temp));
+        if (bytes <= 0) {
+            std::cout << "[SERVER] Client disconnected" << std::endl;
+            break;
+        }
+
+        recv_buffer.insert(recv_buffer.end(), temp, temp + bytes);
+
+        while (true) {
+            if (recv_buffer.size() < 4)
+                break;
+
+            uint32_t body_len_be = 0;
+            std::memcpy(&body_len_be, recv_buffer.data(), 4);
+            uint32_t body_len = ntohl(body_len_be);
+
+            if (body_len < 1 || body_len > 1024 * 1024) {
+                std::cerr << "[SERVER] Invalid body length" << std::endl;
+                goto disconnect;
+            }
+
+            size_t full_packet = 4 + body_len;
+            if (recv_buffer.size() < full_packet)
+                break;
+
+            const char* json_ptr = reinterpret_cast<const char*>(recv_buffer.data() + 4);
+            std::string json_str(json_ptr, body_len);
+
+            try {
+                json msg = json::parse(json_str);
+
+                if (!msg.contains("type") || !msg["type"].is_string()) {
+                    std::cerr << "[SERVER] Missing or invalid type field" << std::endl;
+                }
+                else if (!msg.contains("payload") || !msg["payload"].is_object()) {
+                    std::cerr << "[SERVER] Missing or invalid payload field" << std::endl;
+                }
+                else {
+                    handleEvent(client_fd, msg);
+                }
+
+            }
+            catch (const std::exception& e) {
+                std::cerr << "[SERVER] JSON parse error: " << e.what() << std::endl;
+            }
+
+            recv_buffer.erase(recv_buffer.begin(), recv_buffer.begin() + full_packet);
+        }
+    }
+
+disconnect:
+    removeClient(client_fd);
+    socket_close(client_fd);
+}
+
+int Server::getActiveCount() {
+    std::lock_guard<std::mutex> lock(global_clients_mutex);
+    int count = 0;
+    for (const auto& c : global_clients) {
+        if (!c->getToken().empty()) {
+            count++;
+        }
+    }
+    return count;
+}
+
+void Server::broadcastMessage(json& msg) {
+    if (msg.is_null() || !msg.contains("type")) {
+        std::cerr << "[SERVER] broadcastMessage called with invalid msg" << std::endl;
+        return;
+    }
+    std::vector<SocketType> sockets;
+
+    // Append activeCount to all broadcasts
+    msg["payload"]["activeCount"] = getActiveCount();
+
+    std::lock_guard<std::mutex> lock(global_clients_mutex);
+    for (const auto& c : global_clients) {
+        if (!c->getToken().empty()) {
+            sockets.push_back(c->getSockfd());
+        }
+    }
+
+    std::string out = msg.dump();
+    for (SocketType sock : sockets) {
+        sendDirectMsg(sock, out);
+    }
+}
+
+std::shared_ptr<Client> Server::getClientByFD(SocketType fd) {
     for (auto& c : global_clients) {
-        if (c.getSockfd() == fd)
-            return &c;
+        if (c->getSockfd() == fd)
+            return c;
     }
     return nullptr;
 }
 
-//====================================================
-// AUTH REQUEST
-//====================================================
-void handleAuthRequest(SocketType client_fd, const json& payload) {
-    // Validate payload
-    if (!payload.contains("name") || !payload["name"].is_string()) {
-        std::cerr << "[AUTH] ERROR: missing or invalid username" << std::endl;
-        return;
-    }
-
-    pthread_mutex_lock(&global_clients_mutex);
-
-    Client* client = getClientByFD(client_fd);
-    if (!client) {
-            pthread_mutex_unlock(&global_clients_mutex);
-            std::cerr << "[AUTH] ERROR: Client not found" << std::endl;
-            return;
-    }
-
-    for (Client client : global_clients) {
-        if (client.getName() == payload["name"]) {
-            std::cout << client.getName() << " === " << payload["name"] << std::endl;
-            pthread_mutex_unlock(&global_clients_mutex);
-            std::cerr << "[AUTH] ERROR: Client name already used" << std::endl;
-            json response = {
-                {"type", "auth.response"},
-                {"payload", {
-                    {"success", false},
-                    {"name", payload["name"]},
-                    {"token", ""}
-                }}
-            };
-            std::string out = response.dump();
-            sendFrame(client_fd, out);
-            return;
-        }
-    }
-
-    client->setName(payload["name"]);
-    client->generateToken();
-    pthread_mutex_unlock(&global_clients_mutex);
-    std::cout << "[AUTH] SUCCESS: user= " << client->getName() << " token= " << client->getToken() << std::endl;
-
-    std::string name_msg = payload["name"].get<std::string>() + " joined the chat";
-    
-    json chat_response = {
-        {"type", "chat.response"},
-        {"payload", {
-            {"server", true},
-            {"name", payload["name"]},
-            {"content", name_msg},
-            {"activeCount", getActiveCount()}
-        }}
-    };
-
-    broadcastMessage(chat_response);
-
-    // Build AUTH_RESPONSE JSON
-    json auth_response = {
-        {"type", "auth.response"},
-        {"payload", {
-            {"success", true},
-            {"name", client->getName()},
-            {"token", client->getToken()}
-            /*{"credits", client->getCredits()}*/
-        }}
-    };
-
-    std::string out = auth_response.dump();
-    sendFrame(client_fd, out);
-}
-
-
-//====================================================
-// SEND CHAT
-//====================================================
-void handleChatRequest(SocketType client_fd, const json& payload) {
-
-    pthread_mutex_lock(&global_clients_mutex);
-
-    Client* client = getClientByFD(client_fd);
-    if (!client) {
-        pthread_mutex_unlock(&global_clients_mutex);
-        std::cerr << "[CHAT] ERROR: Client not found" << std::endl;
-        return;
-    }
-
-    if (client->getToken() != payload["token"]) {
-        pthread_mutex_unlock(&global_clients_mutex);
-        std::cerr << "[CHAT] ERROR: Invalid token" << std::endl;
-        return;
-    }
-
-    /*
-    if (client->getCredits() != payload["credits"]) {
-        pthread_mutex_unlock(&global_clients_mutex);
-        std::cerr << "[CHAT] ERROR: Credit mismatch" << std::endl;
-        return;
-    }
-
-    // OK — increase credits on server
-    client->incrementCredits();
-    */
-    std::string username = client->getName();
-    pthread_mutex_unlock(&global_clients_mutex);
-
-    std::cout << "[CHAT] SUCCESS: from " << username << std::endl;
-
-    std::string content = payload["content"];
-
-    // Build CHAT_RESPONSE JSON
-    json response = {
-        {"type", "chat.response"},
-        {"payload", {
-            {"server", false},
-            {"name", client->getName()},
-            {"content", payload["content"]}
-        }}
-    };
-
-    broadcastMessage(response);
-}
-
-
-//====================================================
-// PURCHASE REQUEST
-//====================================================
-void handlePurchaseRequest(SocketType client_fd, const json& payload) {
-    const int prices[9] = {0, 0, 25, 50, 75, 100, 150, 200, 100000};
-
-    if (payload["index"] < 0 || payload["index"] >= 9) {
-        std::cerr << "[PURCHASE] ERROR: Invalid itemIndex" << std::endl;
-        return;
-    }
-
-    pthread_mutex_lock(&global_clients_mutex);
-
-    Client* client = getClientByFD(client_fd);
-    if (!client) {
-        pthread_mutex_unlock(&global_clients_mutex);
-        std::cerr << "[PURCHASE] ERROR: Client not found" << std::endl;
-        return;
-    }
-
-    // Validate token
-    if (client->getToken() != payload["token"]) {
-        pthread_mutex_unlock(&global_clients_mutex);
-        std::cerr << "[PURCHASE ERROR: Token mismatch" <<std::endl;
-        return;
-    }
-
-    // Validate credits
-    if (client->getCredits() != payload["credits"]) {
-        pthread_mutex_unlock(&global_clients_mutex);
-        std::cerr << "[PURCHASE] ERROR: Credit mismatch" << std::endl;
-        return;
-    }
-
-    // Check if already owned
-    if (client->isThemeOwned(payload["index"])) {
-        pthread_mutex_unlock(&global_clients_mutex);
-        json response = {
-            {"type", "purchase.response"},
-            {"payload", {
-                {"success", false}
-            }}
-        };
-        std::string out = response.dump();
-        sendFrame(client_fd, out);
-        return;
-    }
-
-    if (!payload.contains("index") || !payload["index"].is_number_integer()) {
-        std::cerr << "[PURCHASE] ERROR: Invalid index" <<std::endl;
-        return;
-    }
-
-    int index = payload["index"];
-
-    if (index < 0 || index >= 9) {
-        std::cerr << "[PURCHASE] ERROR: Index out of bounds" << std::endl;
-        return;
-    }
-
-    if (client->getCredits() < prices[index]) {
-        std::cerr << "[PURCHASE] ERROR: Not enough credits" << std::endl;
-        return;
-    }
-
-    // Check affordability
-    if (client->getCredits() < prices[index]) {
-        pthread_mutex_unlock(&global_clients_mutex);
-        json response = {
-            {"type", "purchase.response"},
-            {"payload", {
-                {"success", false}
-            }}
-        };
-        std::string out = response.dump();
-        sendFrame(client_fd, out);
-        return;
-    }
-
-    // SUCCESS: deduct credits and mark owned
-    client->subtractPrice(prices[index]);
-    client->ownTheme(payload["index"]);
-
-    int newCredits = client->getCredits();
-
-    pthread_mutex_unlock(&global_clients_mutex);
-
-    std::cout << "[PURCHASE] SUCCESS: item=" << payload["index"] << " new credits=" << newCredits << std::endl;
-
-    // SUCCESS PAYLOAD
-    json response = {
-        {"type", "purchase.response"},
-        {"payload", {
-            {"success", true},
-            {"index", payload["index"]},
-            {"credits", newCredits}
-        }}
-    };
-
-    std::string out = response.dump();
-    sendFrame(client_fd, out);
-}

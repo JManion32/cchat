@@ -105,7 +105,7 @@ void Client::processIncomingMessage(const json& msg) {
         this,
         [this, msg]() {
             // AUTH RESPONSE
-            if (msg["type"] == "auth.response" && msg["payload"]["success"]) {
+            if (msg["type"] == "auth.response" && msg["payload"].value("success", false)) {
                 std::string token = msg["payload"].value("token", "");
                 this->token = QString::fromStdString(token);
                 nameLabel->setText(username);
@@ -124,7 +124,7 @@ void Client::processIncomingMessage(const json& msg) {
                 QString qMsg  = QString::fromStdString(text);
 
                 // From server
-                if (msg["payload"]["server"]) {
+                if (msg["payload"].value("server", false)) {
                     chat_type = "server";
                     active_count = msg["payload"]["activeCount"];
                     activeLabel->setText("Active: " + QString::number(active_count));
@@ -229,7 +229,7 @@ QWidget* Client::buildLoginScreen() {
             }}
         };
         std::string out = request.dump();
-        sendFrame(sockfd, out);
+        sendDirectMsg(sockfd, out);
 
         recvThread = thread_create(Client::recv_loop, this);
         thread_detach(recvThread);
@@ -363,7 +363,7 @@ QWidget* Client::buildChatScreen() {
             }}
         };
         std::string out = request.dump();
-        sendFrame(sockfd, out);
+        sendDirectMsg(sockfd, out);
 
         // Clear input
         messageBox->clear();
@@ -531,7 +531,7 @@ QWidget* Client::buildShopScreen() {
                 }}
             };
             std::string out = request.dump();
-            sendFrame(sockfd, out);
+            sendDirectMsg(sockfd, out);
             });
 
         // Add widgets

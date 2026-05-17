@@ -15,8 +15,7 @@ OBJ = \
     src/main.o \
     src/client.o \
     src/themes.o \
-    ../shared/src/socket_handler.o \
-    ../shared/src/thread_handler.o
+    ../shared/src/socket_handler.o
 
 ../bin/client: $(OBJ)
 	$(CXX) $(OBJ) -o $@ $(LDFLAGS)

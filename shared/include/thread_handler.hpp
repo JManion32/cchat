@@ -1,12 +1,14 @@
-#ifdef _WIN32
-    #include <windows.h>
-    typedef HANDLE ThreadType;
-#else
-    #include <pthread.h>
-    typedef pthread_t ThreadType;
-#endif
+#pragma once
 
-typedef void* (*ThreadFunc)(void*);
+#include <thread>
 
-ThreadType thread_create(ThreadFunc func, void* arg);
-void thread_detach(ThreadType t);
+typedef std::thread ThreadType;
+
+template<typename Func, typename... Args>
+ThreadType thread_create(Func&& func, Args&&... args) {
+    return std::thread(std::forward<Func>(func), std::forward<Args>(args)...);
+}
+
+inline void thread_detach(ThreadType& t) {
+    t.detach();
+}

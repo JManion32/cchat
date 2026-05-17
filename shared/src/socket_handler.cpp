@@ -75,7 +75,7 @@ void socket_close(SocketType sock) {
 #endif
 }
 
-bool sendFrame(SocketType sock, const std::string& json) {
+bool sendDirectMsg(SocketType sock, const std::string& json) {
     uint32_t len = htonl(static_cast<uint32_t>(json.size()));
 
     // send length prefix

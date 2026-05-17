@@ -1,6 +1,3 @@
-// Define a Socket API wrapper so we don't have to worry about 
-// OS compatability in the rest of the code.
-
 #ifdef _WIN32
     #include <winsock2.h>
     #include <ws2tcpip.h>
@@ -28,4 +25,4 @@ int socket_send(SocketType sock, const void* data, int len);
 void socket_close(SocketType sock);
 
 // Length-prefixed JSON send
-bool sendFrame(SocketType sock, const std::string& json);
+bool sendDirectMsg(SocketType sock, const std::string& json);

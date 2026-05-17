@@ -1,36 +1,43 @@
 #pragma once
+
 #include <vector>
 #include <string>
-
-#include "./client.hpp"
-#include "../../shared/include/socket_handler.hpp"
-#include "../../shared/include/thread_handler.hpp"
-
+#include <algorithm>
+#include <string>
+#include <iostream>
+#include <mutex>
+#include <memory>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-void* client_thread(void* arg);
+#include "./client.hpp"
+#include "./auth_handler.hpp"
+#include "./chat_handler.hpp"
+#include "./shop_handler.hpp"
+#include "../../shared/include/socket_handler.hpp"
+#include "../../shared/include/thread_handler.hpp"
 
-// Global list of connected clients
-extern std::vector<Client> global_clients;
-extern pthread_mutex_t global_clients_mutex;
-extern int active_clients;
+// The central coordinator
+class Server {
+public:
+    Server();
+    void handleEvent(SocketType client_fd, const json& msg);
 
-void broadcastMessage(const json& msg);
-void removeClient(SocketType sock);
+private:
+    AuthHandler auth_handler;
+    ChatHandler chat_handler;
+    ShopHandler shop_handler;
 
-//====================================================
-// AUTH REQUEST
-//====================================================
-void handleAuthRequest(SocketType client_fd, const json& payload);
-std::string generateToken();
+    std::vector<std::shared_ptr<Client>> global_clients;
+    std::mutex global_clients_mutex;
 
-//====================================================
-// SEND CHAT
-//====================================================
-void handleChatRequest(SocketType client_fd, const json& payload);
+    static const int SERVER_PORT = 5000;
 
-//====================================================
-// PURCHASE REQUEST
-//====================================================
-void handlePurchaseRequest(SocketType client_fd, const json& payload);
+    std::shared_ptr<Client> getClientByFD(SocketType fd);
+    void* addClient(void* arg);
+    void removeClient(SocketType sock);
+    int getActiveCount();
+    void clientThread(SocketType client_fd);
+    void broadcastMessage(json& msg);
+};
+
