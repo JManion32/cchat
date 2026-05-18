@@ -1,14 +1,8 @@
-# Compiled object files
-*.o
-
-# Qt's moc files
-moc_*.cpp
-
-# Build directories
+bin/
 build/
 
-# Save bin
+*.o
+moc_*.cpp
 !bin/.gitkeep
-
 node_modules
 .env
