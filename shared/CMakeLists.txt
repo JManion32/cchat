@@ -1,4 +1,4 @@
-add_library(shared
+add_library(shared STATIC
     src/socket_handler.cpp
 )
 

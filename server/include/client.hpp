@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <mutex>
 
-#include "../../shared/include/socket_handler.hpp"
+#include "socket_handler.hpp"
 
 class Client {
 public:

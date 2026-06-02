@@ -22,7 +22,6 @@ add_executable(client
     src/main.cpp
     src/client.cpp
     src/themes.cpp
-    ../shared/src/socket_handler.cpp
 )
 
 target_include_directories(client

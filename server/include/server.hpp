@@ -14,7 +14,7 @@ using json = nlohmann::json;
 #include "./auth_handler.hpp"
 #include "./chat_handler.hpp"
 #include "./shop_handler.hpp"
-#include "../../shared/include/socket_handler.hpp"
+#include "socket_handler.hpp"
 #include "../../shared/include/thread_handler.hpp"
 
 // The central coordinator

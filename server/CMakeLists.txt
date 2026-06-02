@@ -12,13 +12,11 @@ add_executable(server
     src/auth_handler.cpp
     src/chat_handler.cpp
     src/shop_handler.cpp
-    ../shared/src/socket_handler.cpp
 )
 
-target_include_directories(server
-    PUBLIC
-    include
-    ../shared/include
+target_include_directories(
+    server PUBLIC
+    include ../shared/include
 )
 
 target_link_libraries(server
@@ -27,6 +25,5 @@ target_link_libraries(server
 
 set_target_properties(
     server PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY
-    ${CMAKE_SOURCE_DIR}/bin
+    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin
 )
