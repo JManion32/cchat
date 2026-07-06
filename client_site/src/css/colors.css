@@ -3,7 +3,6 @@
 :root {
     --site-font: arial, sans-serif;
     --site-transition: 0.2s;
-
     --site-bg: #141414;
     --secondary-bg: #1a1a1a;
     --hover-map-img: #cccccc90;
@@ -11,15 +10,11 @@
     --standard-black: #000;
     --standard-light-gray: #333333;
     --standard-dim-white: #aaa;
-
     --light-green: #00ff2b;
     --light-green-hover: #3bff5c;
     --mid-green: #36ba01;
     --dark-green: #009a22;
-
-
     --danger-red: #f00;
-
     --standard-blue: #1a3af0;
-    --lighter-gray: #3A3A3A;
+    --lighter-gray: #3a3a3a;
 }

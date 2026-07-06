@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import ShopPanel from './ShopPanel.tsx'
+import ShopPanel from './ShopPanel.tsx';
 import '../css/modal.css';
 
 function ShopModal() {
@@ -23,11 +23,9 @@ function ShopModal() {
     };
 
     const modal = isOpen ? (
-        <div className="modal-container" onClick={ handleOutsideClick }>
-            <div
-                className={`modal ${isClosing ? 'slide-down' : 'slide-up'}`}
-            >
-                <ShopPanel/>
+        <div className="modal-container" onClick={handleOutsideClick}>
+            <div className={`modal ${isClosing ? 'slide-down' : 'slide-up'}`}>
+                <ShopPanel />
             </div>
         </div>
     ) : null;
@@ -35,10 +33,7 @@ function ShopModal() {
     return (
         <>
             {/* Trigger */}
-            <button
-                className="default-btn shop-btn"
-                onClick={() => setIsOpen(true)}
-            >
+            <button className="default-btn shop-btn" onClick={() => setIsOpen(true)}>
                 Shop (50)
             </button>
 

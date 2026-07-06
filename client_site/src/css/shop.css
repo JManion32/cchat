@@ -1,5 +1,7 @@
 /* ====================== */
+
 /* SHOP PANEL */
+
 /* ====================== */
 
 .shop-container {
@@ -11,7 +13,7 @@
 }
 
 .shop-category-name {
-    margin: 0 0 1.5rem 0;
+    margin: 0 0 1.5rem;
     color: var(--standard-white);
 }
 
@@ -53,6 +55,7 @@
 }
 
 .nav-category-toggled:hover {
+    /* stylelint-disable-next-line declaration-no-important */
     color: var(--light-green) !important;
 }
 
@@ -84,8 +87,7 @@
 
 .theme-container {
     display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-flow: row wrap;
     justify-content: center;
 }
 
@@ -110,10 +112,12 @@
 }
 
 .theme-selected:hover {
+    /* stylelint-disable-next-line declaration-no-important */
     scale: 1.1 !important;
+    /* stylelint-disable-next-line declaration-no-important */
     box-shadow: 0 0 1.5rem var(--light-green) !important;
 }
 
 .nav-divider {
-    margin: 1rem 0 1rem 0;
+    margin: 1rem 0;
 }

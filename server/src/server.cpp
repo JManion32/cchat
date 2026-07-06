@@ -1,7 +1,9 @@
 #include "../include/server.hpp"
 
-Server::Server() : auth_handler(), chat_handler(), shop_handler() {
+Server::Server(int port) : auth_handler(), chat_handler(), shop_handler() {
     std::cout << "[SERVER] Starting server..." << std::endl;
+
+    this->SERVER_PORT = port;
 
     SocketType server_fd = socket_create();
     if (server_fd < 0) {

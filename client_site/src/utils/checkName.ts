@@ -1,4 +1,5 @@
 import { Filter as BadWordsFilter } from 'bad-words';
+// eslint-disable-next-line
 // @ts-ignore
 import leoProfanity from 'leo-profanity';
 

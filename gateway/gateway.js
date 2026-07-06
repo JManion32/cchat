@@ -1,9 +1,34 @@
 import net from "net";
 import { WebSocketServer } from "ws";
 
-const WS_PORT = 8080;
-const TCP_HOST = "127.0.0.1";
-const TCP_PORT = 5000;
+if (process.argv.length !== 5) {
+    console.error(
+        `Usage: node ${process.argv[1]} <tcp-ip> <tcp-port> <ws-port>`
+    );
+    process.exit(1);
+}
+
+const TCP_HOST = process.argv[2];
+const TCP_PORT = Number(process.argv[3]);
+const WS_PORT = Number(process.argv[4]);
+
+if (
+    Number.isNaN(TCP_PORT) ||
+    TCP_PORT < 1 ||
+    TCP_PORT > 65535
+) {
+    console.error("Invalid TCP port");
+    process.exit(1);
+}
+
+if (
+    Number.isNaN(WS_PORT) ||
+    WS_PORT < 1 ||
+    WS_PORT > 65535
+) {
+    console.error("Invalid WebSocket port");
+    process.exit(1);
+}
 
 const wss = new WebSocketServer({ port: WS_PORT });
 

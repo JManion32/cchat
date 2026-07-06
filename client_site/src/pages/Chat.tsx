@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import GatewayWS from "../services/gatewayWS";
+import GatewayWS from '../services/gatewayWS';
 
 import Message from '../components/Message.tsx';
 import ShopModal from '../components/ShopModal.tsx';
@@ -19,7 +19,7 @@ type ChatProps = {
 
 function Chat({ messages, gateway, user, token, activeCount }: ChatProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const [message, setMessage] = useState("");
+    const [message, setMessage] = useState('');
 
     // Auto-scroll when messages update
     useEffect(() => {
@@ -29,21 +29,21 @@ function Chat({ messages, gateway, user, token, activeCount }: ChatProps) {
     }, [messages]);
 
     function sendMessage() {
-        if (message.trim() === "") return;
+        if (message.trim() === '') return;
 
         gateway.send({
-            type: "chat.request",
+            type: 'chat.request',
             payload: {
                 content: message,
-                token: token
-            }
+                token: token,
+            },
         });
 
-        setMessage("");
+        setMessage('');
     }
 
     function goToPortfolio() {
-        window.location.href = "https://justinmanion.com/projects/cchat";
+        window.location.href = 'https://justinmanion.com/projects/cchat';
     }
 
     return (
@@ -51,18 +51,18 @@ function Chat({ messages, gateway, user, token, activeCount }: ChatProps) {
             <div className="chat-page-container">
                 <div className={`chat-content-container`}>
                     <div className="navbar-container">
-                        <div className="cchat-link-container" onClick={ () => goToPortfolio() }>
-                            <img src={logo} className="site-logo"/>
+                        <div className="cchat-link-container" onClick={() => goToPortfolio()}>
+                            <img src={logo} className="site-logo" />
                             <p className="site-name">CChat</p>
                         </div>
                         <button className="count">
                             <span className="active-dot">●</span> <span className="active-count">{activeCount}</span>
                         </button>
                         <div className="shop-btn-container">
-                            <ShopModal/>
+                            <ShopModal />
                         </div>
                     </div>
-                    <hr className="nav-chat-hr"/>
+                    <hr className="nav-chat-hr" />
                     <div className="chat-message-container" ref={containerRef}>
                         {messages.map((msg, index) => (
                             <Message
@@ -84,7 +84,7 @@ function Chat({ messages, gateway, user, token, activeCount }: ChatProps) {
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             onKeyDown={(e) => {
-                                if (e.key === "Enter") {
+                                if (e.key === 'Enter') {
                                     e.preventDefault();
                                     sendMessage();
                                 }
@@ -96,7 +96,7 @@ function Chat({ messages, gateway, user, token, activeCount }: ChatProps) {
                     </div>
                 </div>
                 <div className="shop-panel-container">
-                    <ShopPanel/>
+                    <ShopPanel />
                 </div>
             </div>
         </>

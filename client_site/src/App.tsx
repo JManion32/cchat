@@ -1,32 +1,33 @@
 // src/App.tsx
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
-import Login from "./pages/Login";
-import Chat from "./pages/Chat";
-import { gateway } from "./services/gateway";
+import Login from './pages/Login';
+import Chat from './pages/Chat';
+import { gateway } from './services/gateway';
 
 export default function App() {
+    // eslint-disable-next-line
     const [messages, setMessages] = useState<any[]>([]);
     const [success, setSuccess] = useState<boolean | null>(null);
-    const [user, setUser] = useState<string>("");
-    const [token, setToken] = useState<string>("");
+    const [user, setUser] = useState<string>('');
+    const [token, setToken] = useState<string>('');
     const [activeCount, setActiveCount] = useState(0);
 
     useEffect(() => {
         gateway.onMessage = (msg) => {
             switch (msg.type) {
-                case "auth.response":
+                case 'auth.response':
                     setSuccess(msg.payload.success);
                     setUser(msg.payload.name);
                     setToken(msg.payload.token);
                     break;
 
-                case "chat.response":
-                    if (typeof msg.payload.activeCount === "number") {
+                case 'chat.response':
+                    if (typeof msg.payload.activeCount === 'number') {
                         setActiveCount(msg.payload.activeCount);
                     }
-                    setMessages(prev => [...prev, msg.payload]);
+                    setMessages((prev) => [...prev, msg.payload]);
                     break;
             }
         };
@@ -35,16 +36,7 @@ export default function App() {
     return (
         <BrowserRouter>
             <Routes>
-                <Route
-                    path="/"
-                    element={
-                        <Login
-                            gateway={gateway}
-                            success={success}
-                            chosen_name={user}
-                        />
-                    }
-                />
+                <Route path="/" element={<Login gateway={gateway} success={success} chosen_name={user} />} />
                 <Route
                     path="/chat"
                     element={

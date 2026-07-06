@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import GatewayWS from "../services/gatewayWS";
+import GatewayWS from '../services/gatewayWS';
 
 import '../css/login.css';
 import '../css/colors.css';
@@ -43,34 +43,31 @@ function Login({ gateway, success, chosen_name }: LoginProps) {
         setBadNameMessage('');
 
         gateway.send({
-            type: "auth.request",
-            payload: { name }
+            type: 'auth.request',
+            payload: { name },
         });
     }
-
 
     useEffect(() => {
         if (success === null) return;
 
         if (success) {
-            navigate("/chat");
+            navigate('/chat');
         } else {
+            // eslint-disable-next-line
             setBadNameMessage(`The username ${chosen_name} is taken.`);
             setName('');
         }
+        // eslint-disable-next-line
     }, [success]);
 
     return (
         <>
             <div className="home-page-container">
-                <MatrixCanvas/>
+                <MatrixCanvas />
                 <div className="home-content-container">
-                    <h1 className="site-title">
-                        cchat.fun
-                    </h1>
-                    <p className={`name-error`}>
-                        {badNameMessage}
-                    </p>
+                    <h1 className="site-title">cchat.fun</h1>
+                    <p className={`name-error`}>{badNameMessage}</p>
                     <input
                         type="text"
                         maxLength={16}
@@ -97,19 +94,11 @@ function Login({ gateway, success, chosen_name }: LoginProps) {
                         {copied ? 'Copied!' : 'Share'}
                     </a>
                     <span>|</span>
-                    <a
-                        className="footer-link"
-                        href="https://github.com/JManion32/secure-chat-app"
-                        target="_blank"
-                    >
+                    <a className="footer-link" href="https://github.com/JManion32/secure-chat-app" target="_blank">
                         GitHub ↗
                     </a>
                     <span>|</span>
-                    <a
-                        className="footer-link"
-                        href="https://justinmanion.com/projects/securechatroom"
-                        target="_blank"
-                    >
+                    <a className="footer-link" href="https://justinmanion.com/projects/securechatroom" target="_blank">
                         Portfolio ↗
                     </a>
                 </div>

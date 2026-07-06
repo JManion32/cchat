@@ -20,7 +20,7 @@ using json = nlohmann::json;
 // The central coordinator
 class Server {
 public:
-    Server();
+    Server(int port);
     void handleEvent(SocketType client_fd, const json& msg);
 
 private:
@@ -30,8 +30,7 @@ private:
 
     std::vector<std::shared_ptr<Client>> global_clients;
     std::mutex global_clients_mutex;
-
-    static const int SERVER_PORT = 5000;
+    int SERVER_PORT;
 
     std::shared_ptr<Client> getClientByFD(SocketType fd);
     void* addClient(void* arg);

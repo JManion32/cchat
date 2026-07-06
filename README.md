@@ -11,9 +11,9 @@ There are 2 client platforms available:
 #### Browser client:
 https://cchat.fun/
 #### Native GUI Client:
-Create a `.env` file in /bin/linux and add:
-```
-CCHAT_SERVER_HOST=cchat.fun
+In `bin`, run:
+```bash
+./client cchat.fun 5000
 ```
 
 ## Configuring Locally
@@ -24,9 +24,9 @@ Create a `.env` file in /client_site and add:
 VITE_GATEWAY_URL=ws://localhost:8080
 ```
 #### Native GUI Client:
-Create a `.env` file in /bin/linux and add:
-```
-CCHAT_SERVER_IP=127.0.0.1
+In `bin`, run:
+```bash
+./client 127.0.0.1 <port_num>
 ```
 
 ## Running Locally
