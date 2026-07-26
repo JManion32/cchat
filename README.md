@@ -1,3 +1,5 @@
+### DISCLAIMER: This documentation hasn't been updated in many months. Updates are a work in progress.
+
 ## CChat
 Tested on Ubuntu 24.04 with X86 64 architecture.
 
@@ -31,7 +33,7 @@ In `bin`, run:
 
 ## Running Locally
 
-### React Website Client
+### React Website Client (standalone)
 ```
 cd gateway
 npm install
