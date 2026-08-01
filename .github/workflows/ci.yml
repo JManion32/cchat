@@ -125,7 +125,8 @@ jobs:
                       clang \
                       clang-tidy \
                       cmake \
-                      qt6-base-dev
+                      qt6-base-dev \
+                      nlohmann-json3-dev
 
             - name: Configure
               run: cmake -B build -S . -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
