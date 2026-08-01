@@ -30,7 +30,7 @@ jobs:
               run: npm ci
 
             - name: Run Stylelint
-              run: npx stylelint **/*.{css}
+              run: npx stylelint **/*.css
 
     prettier:
         name: Prettier
@@ -131,6 +131,7 @@ jobs:
 
             - name: Run clang-tidy
               run: |
-                  find . -name "*.cpp" \
-                    -print0 \
-                    | xargs -0 clang-tidy -p build
+                  find client_gui server shared \
+                      -name "*.cpp" \
+                      -print0 \
+                      | xargs -0 clang-tidy -p build

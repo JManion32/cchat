@@ -7,8 +7,8 @@ using json = nlohmann::json;
 
 class ShopHandler {
 public:
-    void handlePurchaseRequest(std::shared_ptr<Client> client, const json& payload);
+  void handlePurchaseRequest(std::shared_ptr<Client> client,
+                             const json &payload);
 
 private:
-
 };
