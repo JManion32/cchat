@@ -132,6 +132,6 @@ jobs:
             - name: Run clang-tidy
               run: |
                   find client_gui server shared \
-                      -name "*.cpp" \
-                      -print0 \
-                      | xargs -0 clang-tidy -p build
+                    \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" \) \
+                    -print0 \
+                    | xargs -0 clang-tidy -p build
