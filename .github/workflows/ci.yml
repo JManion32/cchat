@@ -124,7 +124,8 @@ jobs:
                   sudo apt-get install -y \
                       clang \
                       clang-tidy \
-                      cmake
+                      cmake \
+                      qt6-base-dev
 
             - name: Configure
               run: cmake -B build -S . -DCMAKE_EXPORT_COMPILE_COMMANDS=ON

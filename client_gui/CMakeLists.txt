@@ -9,8 +9,6 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-set(CMAKE_PREFIX_PATH "/home/jmanion32/Qt/6.10.1/gcc_64")
-
 find_package(Qt6 REQUIRED COMPONENTS
     Core
     Gui
