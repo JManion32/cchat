@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # VITE_GATEWAY_URL is baked into the bundle at build time, so changing that
+  # secret requires a rebuild. This allows one without an empty commit.
+  workflow_dispatch:
 
 jobs:
     stylelint:
@@ -178,7 +181,10 @@ jobs:
             - cmake-build-and-upload
             - clang-tidy
 
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: >-
+            github.ref == 'refs/heads/main'
+            && (github.event_name == 'push'
+                || github.event_name == 'workflow_dispatch')
 
         steps:
             - name: Checkout code

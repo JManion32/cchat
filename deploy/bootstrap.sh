@@ -34,8 +34,15 @@ render "$script_dir/cchat-gateway.service" \
     | $SUDO tee /etc/systemd/system/cchat-gateway.service > /dev/null
 $SUDO systemctl daemon-reload
 
-render "$script_dir/cchat.nginx.conf" \
-    | $SUDO tee /etc/nginx/sites-available/cchat > /dev/null
+# certbot rewrites the installed file in place to add the TLS block, and that
+# edit exists only on the droplet. Overwriting it here would silently drop
+# HTTPS. Edit the live file directly, or delete it first to start over.
+if $SUDO grep -q "managed by Certbot" /etc/nginx/sites-available/cchat 2>/dev/null; then
+    echo "nginx site has certbot TLS config, leaving it alone"
+else
+    render "$script_dir/cchat.nginx.conf" \
+        | $SUDO tee /etc/nginx/sites-available/cchat > /dev/null
+fi
 $SUDO ln -sfn /etc/nginx/sites-available/cchat /etc/nginx/sites-enabled/cchat
 # Ships enabled and also claims default_server on :80, which collides with ours.
 $SUDO rm -f /etc/nginx/sites-enabled/default
