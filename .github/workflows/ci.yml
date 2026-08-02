@@ -102,9 +102,9 @@ jobs:
                     -print0 \
                     | xargs -0 clang-format --dry-run --Werror
 
-    cmake-build:
-        name: CMake Build
-        runs-on: ubuntu-latest
+    cmake-build-and-publish:
+        name: CMake Build and Publish
+        runs-on: ubuntu-24.04
 
         steps:
             - name: Checkout code
@@ -126,10 +126,18 @@ jobs:
               run: |
                   cmake --build ./build
 
+            - name: Upload server binary
+              uses: actions/upload-artifact@v4
+              with:
+                  name: server-binary
+                  path: bin/server
+                  if-no-files-found: error
+                  retention-days: 7
+
     clang-tidy:
         name: Clang Tidy
         runs-on: ubuntu-latest
-        needs: cmake-build
+        needs: cmake-build-and-publish
 
         defaults:
             run:
@@ -158,3 +166,122 @@ jobs:
                     \( -name "*.cpp" -o -name "*.hpp" -o -name "*.h" \) \
                     -print0 \
                     | xargs -0 clang-tidy -p build
+
+    deploy:
+        name: Deploy
+        runs-on: ubuntu-latest
+        needs:
+            - stylelint
+            - prettier
+            - eslint
+            - clang-format
+            - cmake-build
+            - clang-tidy
+
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22'
+                  cache: 'npm'
+                  cache-dependency-path: |
+                      client_site/package-lock.json
+                      gateway/package-lock.json
+
+            - name: Build client_site
+              working-directory: client_site
+              env:
+                  VITE_GATEWAY_URL: ${{ secrets.VITE_GATEWAY_URL }}
+              run: |
+                  # Vite inlines this at build time, and the app silently falls
+                  # back to localhost when it is missing, so fail loudly instead
+                  # of shipping a bundle that cannot reach the gateway.
+                  if [ -z "${VITE_GATEWAY_URL:-}" ]; then
+                      echo "VITE_GATEWAY_URL secret is not set" >&2
+                      exit 1
+                  fi
+                  npm ci
+                  npm run build
+
+            - name: Build gateway bundle
+              working-directory: gateway
+              run: |
+                  npm ci
+                  npm run build
+
+            - name: Download server binary
+              uses: actions/download-artifact@v4
+              with:
+                  name: server-binary
+                  path: bin
+
+            - name: Create bundles
+              run: |
+                  tar -czf client_site.tar.gz -C client_site/dist .
+                  tar -czf gateway.tar.gz -C gateway/dist .
+
+            - name: Configure SSH
+              env:
+                  DROPLET_SSH_KEY: ${{ secrets.DROPLET_SSH_KEY }}
+                  DROPLET_HOST: ${{ secrets.DROPLET_HOST }}
+              run: |
+                  mkdir -p ~/.ssh
+                  printf '%s\n' "$DROPLET_SSH_KEY" > ~/.ssh/deploy_key
+                  chmod 600 ~/.ssh/deploy_key
+                  ssh-keyscan -H "$DROPLET_HOST" >> ~/.ssh/known_hosts
+
+            - name: Upload bundles to droplet
+              env:
+                  DROPLET_HOST: ${{ secrets.DROPLET_HOST }}
+                  DROPLET_USER: ${{ secrets.DROPLET_USER }}
+              run: |
+                  ssh -i ~/.ssh/deploy_key "$DROPLET_USER@$DROPLET_HOST" \
+                      'rm -rf ~/.deploy-staging && mkdir -p ~/.deploy-staging'
+                  scp -i ~/.ssh/deploy_key \
+                      client_site.tar.gz \
+                      gateway.tar.gz \
+                      bin/server \
+                      "$DROPLET_USER@$DROPLET_HOST:.deploy-staging/"
+
+            - name: Install bundles on droplet
+              env:
+                  DROPLET_HOST: ${{ secrets.DROPLET_HOST }}
+                  DROPLET_USER: ${{ secrets.DROPLET_USER }}
+              run: |
+                  ssh -i ~/.ssh/deploy_key \
+                      "$DROPLET_USER@$DROPLET_HOST" bash -s <<'REMOTE'
+                  set -euo pipefail
+
+                  staging="$HOME/.deploy-staging"
+
+                  # Unpack each bundle beside its target, then swap it in, so a
+                  # failed extract never leaves a half-written directory live.
+                  for name in client_site gateway; do
+                      rm -rf "$HOME/$name.new"
+                      mkdir -p "$HOME/$name.new"
+                      tar -xzf "$staging/$name.tar.gz" -C "$HOME/$name.new"
+
+                      rm -rf "$HOME/$name.old"
+                      if [ -d "$HOME/$name" ]; then
+                          mv "$HOME/$name" "$HOME/$name.old"
+                      fi
+                      mv "$HOME/$name.new" "$HOME/$name"
+                      rm -rf "$HOME/$name.old"
+                  done
+
+                  # A running binary cannot be overwritten, but it can be renamed
+                  # out of the way while the old process keeps its open inode.
+                  chmod +x "$staging/server"
+                  rm -f "$HOME/server.old"
+                  if [ -f "$HOME/server" ]; then
+                      mv "$HOME/server" "$HOME/server.old"
+                  fi
+                  mv "$staging/server" "$HOME/server"
+
+                  rm -rf "$staging"
+                  REMOTE

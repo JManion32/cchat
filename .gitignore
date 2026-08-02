@@ -1,5 +1,6 @@
 bin/
 build/
+gateway/dist/
 
 *.o
 moc_*.cpp
