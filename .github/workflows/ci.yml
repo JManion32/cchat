@@ -102,8 +102,8 @@ jobs:
                     -print0 \
                     | xargs -0 clang-format --dry-run --Werror
 
-    cmake-build-and-publish:
-        name: CMake Build and Publish
+    cmake-build-and-upload:
+        name: CMake Build and Upload
         runs-on: ubuntu-24.04
 
         steps:
@@ -137,7 +137,7 @@ jobs:
     clang-tidy:
         name: Clang Tidy
         runs-on: ubuntu-latest
-        needs: cmake-build-and-publish
+        needs: cmake-build-and-upload
 
         defaults:
             run:
@@ -175,7 +175,7 @@ jobs:
             - prettier
             - eslint
             - clang-format
-            - cmake-build
+            - cmake-build-and-upload
             - clang-tidy
 
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
