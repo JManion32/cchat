@@ -1,0 +1,14 @@
+[Unit]
+Description=CChat TCP server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=__USER__
+WorkingDirectory=__HOME__
+ExecStart=__HOME__/server __TCP_PORT__
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target

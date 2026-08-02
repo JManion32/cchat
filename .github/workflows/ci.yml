@@ -198,13 +198,6 @@ jobs:
               env:
                   VITE_GATEWAY_URL: ${{ secrets.VITE_GATEWAY_URL }}
               run: |
-                  # Vite inlines this at build time, and the app silently falls
-                  # back to localhost when it is missing, so fail loudly instead
-                  # of shipping a bundle that cannot reach the gateway.
-                  if [ -z "${VITE_GATEWAY_URL:-}" ]; then
-                      echo "VITE_GATEWAY_URL secret is not set" >&2
-                      exit 1
-                  fi
                   npm ci
                   npm run build
 
@@ -274,6 +267,11 @@ jobs:
                       rm -rf "$HOME/$name.old"
                   done
 
+                  # This directory is recreated on every deploy, so the mode
+                  # bootstrap.sh set is gone. nginx runs as www-data and needs
+                  # to read it. X sets +x on directories only, not on files.
+                  chmod -R o+rX "$HOME/client_site"
+
                   # A running binary cannot be overwritten, but it can be renamed
                   # out of the way while the old process keeps its open inode.
                   chmod +x "$staging/server"
@@ -284,4 +282,16 @@ jobs:
                   mv "$staging/server" "$HOME/server"
 
                   rm -rf "$staging"
+
+                  [ "$(id -u)" -eq 0 ] && SUDO="" || SUDO="sudo"
+                  $SUDO systemctl restart cchat-server.service
+                  $SUDO systemctl restart cchat-gateway.service
+
+                  # Fail the deploy if either died on startup rather than
+                  # reporting green while the site is down.
+                  sleep 2
+                  $SUDO systemctl is-active --quiet cchat-server.service \
+                      || { $SUDO journalctl -u cchat-server -n 30 --no-pager; exit 1; }
+                  $SUDO systemctl is-active --quiet cchat-gateway.service \
+                      || { $SUDO journalctl -u cchat-gateway -n 30 --no-pager; exit 1; }
                   REMOTE

@@ -1,0 +1,14 @@
+[Unit]
+Description=CChat WebSocket to TCP gateway
+After=network-online.target cchat-server.service
+Wants=network-online.target
+
+[Service]
+User=__USER__
+WorkingDirectory=__HOME__
+ExecStart=/usr/bin/node __HOME__/gateway/gateway.cjs 127.0.0.1 __TCP_PORT__ __WS_PORT__
+Restart=always
+RestartSec=2s
+
+[Install]
+WantedBy=multi-user.target
