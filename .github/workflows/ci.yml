@@ -86,10 +86,6 @@ jobs:
         name: Clang Format
         runs-on: ubuntu-latest
 
-        defaults:
-            run:
-                working-directory: server
-
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -106,9 +102,34 @@ jobs:
                     -print0 \
                     | xargs -0 clang-format --dry-run --Werror
 
+    cmake-build:
+        name: CMake Build
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Install dependencies
+              run: |
+                  sudo apt-get update
+                  sudo apt-get install -y \
+                      cmake \
+                      ninja-build \
+                      qt6-base-dev \
+                      nlohmann-json3-dev
+
+            - name: Configure
+              run: cmake -B build -G Ninja -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+            - name: Build
+              run: |
+                  cmake --build ./build
+
     clang-tidy:
         name: Clang Tidy
         runs-on: ubuntu-latest
+        needs: cmake-build
 
         defaults:
             run:
