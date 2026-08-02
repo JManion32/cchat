@@ -1,76 +1,89 @@
-### DISCLAIMER: This documentation hasn't been updated in many months. Updates are a work in progress.
-
 ## CChat
-Tested on Ubuntu 24.04 with X86 64 architecture.
+A real-time client-server chat application. Supports a Qt GUI and React web clients. This project was created for a school assignment, and has since been polished and expanded.
 
-### Cloning the Repository
-```
-git clone https://github.com/JManion32/cchat.git
-```
+## Building
 
-## Connecting to the Live Server
-There are 2 client platforms available:
-#### Browser client:
-https://cchat.fun/
-#### Native GUI Client:
-In `bin`, run:
+### Prerequisites
 ```bash
-./client cchat.fun 5000
+sudo apt install cmake g++ qt6-base-dev nlohmann-json3-dev
 ```
+Node 18+ is needed for the web client and gateway.
 
-## Configuring Locally
-The server runs on port 5000. You can connect locally with either of the clients.
-#### Browser client:
-Create a `.env` file in /client_site and add:
-```
-VITE_GATEWAY_URL=ws://localhost:8080
-```
-#### Native GUI Client:
-In `bin`, run:
+Qt is only required for the desktop GUI. To work on the server or web client
+without installing it, see [Building without Qt](#building-without-qt).
+
+### Build
 ```bash
-./client 127.0.0.1 <port_num>
+cmake --preset dev
+cmake --build --preset dev
+```
+Binaries land in `bin/`. The preset handles the Qt lookup, so no environment
+variables or `-D` flags are needed.
+
+#### If Qt is installed somewhere non-standard
+The preset looks for the Qt online installer's default location,
+`~/Qt/6.10.1/gcc_64`, and otherwise falls back to the system Qt from
+`qt6-base-dev`. If yours is elsewhere, or is a different version, create
+`CMakeUserPresets.json` in the repo root (it is gitignored, so it stays local):
+```json
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "local",
+            "inherits": "dev",
+            "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "$env{HOME}/Qt/6.11.0/gcc_64"
+            }
+        }
+    ]
+}
+```
+Then build with `cmake --preset local` and `cmake --build --preset local`.
+
+#### Building without Qt
+```bash
+cmake --preset dev -D BUILD_CLIENT_GUI=OFF
+cmake --build --preset dev
 ```
 
 ## Running Locally
 
-### React Website Client (standalone)
+The server listens on port 5000. Start it first:
+```bash
+./bin/server 5000
 ```
+
+### Native GUI client
+```bash
+./bin/client 127.0.0.1 5000
+```
+
+### Browser client
+The gateway bridges the browser's WebSocket to the server's TCP socket. It takes
+the server host, the server port, and the port to serve WebSockets on:
+```bash
 cd gateway
 npm install
-node gateway.js
+node gateway.js 127.0.0.1 5000 8080
 ```
+Then, in another terminal, create `client_site/.env` with:
 ```
+VITE_GATEWAY_URL=ws://localhost:8080
+```
+and start the dev server:
+```bash
 cd client_site
 npm install
 npm run dev
 ```
 
-### Server and Native GUI on Linux
-Make the client GUI and server (root dir):
+## Connecting to the Live Server with the GUI
+The live server listens on port `5000`.
+```bash
+./client cchat.fun 5000
 ```
-make
+You can also connect from a local browser environment with:
 ```
-
-Cleanup .o files and executables from previous makes (root dir):
+VITE_GATEWAY_URL=ws://cchat.fun:8080
 ```
-make clean
-```
-
-Make the native client GUI only:
-```
-make -C client_gui
-```
-
-Make the server only:
-```
-make -C server
-```
-
-Executables for the native GUI client and the server are found in `bin/linux`, and run with:
-```
-./server
-./client
-```
-
-## Running on Windows
-Though you may see conditional code execution that accomodates both Windows and Linux socket and threading libraries, it is incomplete. Only the React website client is currently supported on Windows.

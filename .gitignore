@@ -2,6 +2,9 @@ bin/
 build/
 gateway/dist/
 
+# Per-machine preset overrides (e.g. a different Qt install path)
+CMakeUserPresets.json
+
 *.o
 moc_*.cpp
 !bin/.gitkeep
