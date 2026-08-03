@@ -17,24 +17,25 @@ using json = nlohmann::json;
 #include "socket_handler.hpp"
 
 // The central coordinator
-class Server {
-public:
-  Server(int port);
-  void handleEvent(SocketType client_fd, const json &msg);
+class Server
+{
+  public:
+    Server(int port);
+    void handleEvent(SocketType client_fd, const json& msg);
 
-private:
-  AuthHandler auth_handler;
-  ChatHandler chat_handler;
-  ShopHandler shop_handler;
+  private:
+    AuthHandler auth_handler;
+    ChatHandler chat_handler;
+    ShopHandler shop_handler;
 
-  std::vector<std::shared_ptr<Client>> global_clients;
-  std::mutex global_clients_mutex;
-  int SERVER_PORT;
+    std::vector<std::shared_ptr<Client>> global_clients;
+    std::mutex global_clients_mutex;
+    int SERVER_PORT;
 
-  std::shared_ptr<Client> getClientByFD(SocketType fd);
-  void *addClient(void *arg);
-  void removeClient(SocketType sock);
-  int getActiveCount();
-  void clientThread(SocketType client_fd);
-  void broadcastMessage(json &msg);
+    std::shared_ptr<Client> getClientByFD(SocketType fd);
+    void* addClient(void* arg);
+    void removeClient(SocketType sock);
+    int getActiveCount();
+    void clientThread(SocketType client_fd);
+    void broadcastMessage(json& msg);
 };

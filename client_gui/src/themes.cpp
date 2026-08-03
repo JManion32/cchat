@@ -1206,8 +1206,6 @@ const QString THEME_FESTIVE = R"(
 // ======================
 
 const QHash<QString, QString> THEME_MAP = {
-    {"dark", THEME_DARK},           {"light", THEME_LIGHT},
-    {"warm", THEME_WARM},           {"neon", THEME_NEON},
-    {"forest", THEME_FOREST},       {"retro", THEME_RETRO},
-    {"halloween", THEME_HALLOWEEN}, {"festive", THEME_FESTIVE},
-    {"premium", THEME_PREMIUM}};
+    {"dark", THEME_DARK},           {"light", THEME_LIGHT},     {"warm", THEME_WARM},
+    {"neon", THEME_NEON},           {"forest", THEME_FOREST},   {"retro", THEME_RETRO},
+    {"halloween", THEME_HALLOWEEN}, {"festive", THEME_FESTIVE}, {"premium", THEME_PREMIUM}};

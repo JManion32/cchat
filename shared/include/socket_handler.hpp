@@ -4,6 +4,7 @@
 typedef SOCKET SocketType;
 #else
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <sys/socket.h>
 #include <unistd.h>
 typedef int SocketType;
@@ -11,7 +12,7 @@ typedef int SocketType;
 #include <string>
 
 // Client
-bool socket_connect(SocketType sock, const char *ip, int port);
+bool socket_connect(SocketType sock, const char* ip, int port);
 
 // Server
 SocketType socket_create();
@@ -20,9 +21,9 @@ bool socket_listen(SocketType sock);
 SocketType socket_accept(SocketType server);
 
 // Both
-int socket_recv(SocketType sock, void *buffer, int len);
-int socket_send(SocketType sock, const void *data, int len);
+int socket_recv(SocketType sock, void* buffer, int len);
+int socket_send(SocketType sock, const void* data, int len);
 void socket_close(SocketType sock);
 
 // Length-prefixed JSON send
-bool sendDirectMsg(SocketType sock, const std::string &json);
+bool sendDirectMsg(SocketType sock, const std::string& json);
