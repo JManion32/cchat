@@ -42,16 +42,12 @@ function Chat({ messages, gateway, user, token, activeCount }: ChatProps) {
         setMessage('');
     }
 
-    function goToPortfolio() {
-        window.location.href = 'https://justinmanion.com/projects/cchat';
-    }
-
     return (
         <>
             <div className="chat-page-container">
                 <div className={`chat-content-container`}>
                     <div className="navbar-container">
-                        <div className="cchat-link-container" onClick={() => goToPortfolio()}>
+                        <div className="cchat-link-container">
                             <img src={logo} className="site-logo" />
                             <p className="site-name">CChat</p>
                         </div>

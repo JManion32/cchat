@@ -94,12 +94,8 @@ function Login({ gateway, success, chosen_name }: LoginProps) {
                         {copied ? 'Copied!' : 'Share'}
                     </a>
                     <span>|</span>
-                    <a className="footer-link" href="https://github.com/JManion32/secure-chat-app" target="_blank">
+                    <a className="footer-link" href="https://github.com/JManion32/cchat" target="_blank">
                         GitHub ↗
-                    </a>
-                    <span>|</span>
-                    <a className="footer-link" href="https://justinmanion.com/projects/securechatroom" target="_blank">
-                        Portfolio ↗
                     </a>
                 </div>
             </div>
