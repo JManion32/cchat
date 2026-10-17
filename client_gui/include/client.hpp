@@ -1,6 +1,9 @@
 #include <iostream>
 #include <string>
 
+#include "socket_handler.hpp"
+#include "thread_handler.hpp"
+
 #include <QApplication>
 #include <QDateTime>
 #include <QFile>
@@ -16,8 +19,6 @@
 #include <QTimer>
 #include <QVBoxLayout>
 
-#include "../../shared/include/thread_handler.hpp"
-#include "socket_handler.hpp"
 #include "themes.hpp"
 
 #include <nlohmann/json.hpp>
